@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.database import SessionDep
-from repository import BookRepository
-from schemas import SBooksAdd, SBookId, SBooks, SBooksUpdate
+from app.books.repository import BookRepository
+from app.books.schemas import SBooksAdd, SBookId, SBooks, SBooksUpdate
 
 router = APIRouter(
     prefix="/books",

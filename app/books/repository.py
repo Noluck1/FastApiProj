@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from app.books.models import BooksOrm
 from app.database import SessionDep
-from schemas import SBooksAdd, SBooks, SBooksUpdate
+from app.books.schemas import SBooksAdd, SBooks, SBooksUpdate
 
 
 class BookRepository:
