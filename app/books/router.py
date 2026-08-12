@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
-
-from database import SessionDep
+from app.database import SessionDep
 from repository import BookRepository
 from schemas import SBooksAdd, SBookId, SBooks, SBooksUpdate
 

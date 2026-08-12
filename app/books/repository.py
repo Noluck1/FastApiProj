@@ -1,9 +1,7 @@
-from idlelib import query
-
 from fastapi import HTTPException
 from sqlalchemy import select
-
-from database import BooksOrm, SessionDep
+from app.books.models import BooksOrm
+from app.database import SessionDep
 from schemas import SBooksAdd, SBooks, SBooksUpdate
 
 
@@ -20,8 +18,7 @@ class BookRepository:
 
     @classmethod
     async def get_book(cls, session:SessionDep) -> list[SBooks]:
-        query = select(BooksOrm)
-        result = await session.execute(query)
+        result = await session.execute(select(BooksOrm))
         book_models = result.scalars().all()
         books = [SBooks.model_validate(book_model) for book_model in book_models]
 

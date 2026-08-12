@@ -1,8 +1,7 @@
 from typing import Annotated
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from app.books.models import Model
 
 engine = create_async_engine("sqlite+aiosqlite:///books.db")
 
@@ -16,16 +15,6 @@ SessionDep = Annotated[
     AsyncSession,
     Depends(get_session)
 ]
-
-class Model(DeclarativeBase):
-    pass
-
-class BooksOrm(Model):
-    __tablename__ = "books"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str]
-    author: Mapped[str]
 
 async def create_tables():
     async with engine.begin() as conn:
