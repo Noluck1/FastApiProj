@@ -25,6 +25,16 @@ class BookRepository:
         return books
 
     @classmethod
+    async def get_book_id(cls, book_id: int, session:SessionDep) -> SBooks:
+        result = await session.execute(select(BooksOrm).where(BooksOrm.id == book_id))
+        book_model = result.scalar_one_or_none()
+
+        if book_model is None:
+            raise HTTPException(status_code=404, detail="book not found")
+
+        return book_model
+
+    @classmethod
     async def uppdate_book(cls, book_id: int, session:SessionDep, book: SBooksUpdate ):
         result = await session.execute(select(BooksOrm).where(BooksOrm.id == book_id))
         book_models = result.scalar_one_or_none()

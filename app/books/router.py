@@ -18,6 +18,12 @@ async def get_books(session: SessionDep) -> list[SBooks]:
     books = await BookRepository.get_book(session)
     return books
 
+@router.get("/{book_id}")
+async def get_book_id(session: SessionDep, book_id: int) -> SBooks:
+    book = await BookRepository.get_book_id(book_id, session)
+    return book
+    
+
 @router.put("/{book_id}")
 async def update_book(session: SessionDep, book_id: int, book: SBooksUpdate = Depends()):
     book = await BookRepository.uppdate_book(book_id, session, book)
