@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.database import SessionDep
-from app.books.repository import BookRepository
+from app.books.service import BookService
 from app.books.schemas import SBooksAdd, SBookId, SBooks, SBooksUpdate
 
 router = APIRouter(
@@ -9,27 +8,27 @@ router = APIRouter(
 )
 
 @router.post("")
-async def add_book(session: SessionDep, book: SBooksAdd = Depends()) -> SBookId:
-    new_book = await BookRepository.add_book(book, session)
+async def add_book(book: SBooksAdd = Depends()) -> SBookId:
+    new_book = await BookService().add_book(book)
     return {"id": new_book}
 
 @router.get("")
-async def get_books(session: SessionDep) -> list[SBooks]:
-    books = await BookRepository.get_book(session)
+async def get_books():
+    books = await BookService().get_books()
     return books
 
 @router.get("/{book_id}")
-async def get_book_id(session: SessionDep, book_id: int) -> SBooks:
-    book = await BookRepository.get_book_id(book_id, session)
+async def get_book_id(book_id: int):
+    book = await BookService().get_book_id(book_id)
     return book
     
 
 @router.put("/{book_id}")
-async def update_book(session: SessionDep, book_id: int, book: SBooksUpdate = Depends()):
-    book = await BookRepository.uppdate_book(book_id, session, book)
+async def update_book(book_id: int, book: SBooksUpdate = Depends()) -> SBooks:
+    book = await BookService().update_book(book_id, book)
     return book
 
 @router.delete("/{book_id}")
-async def delete_book(book_id: int, session: SessionDep):
-    book = await BookRepository.delete_book(session, book_id)
-    return {"id": book}
+async def delete_book(book_id: int):
+    await BookService().delete_book(book_id)
+    return None
