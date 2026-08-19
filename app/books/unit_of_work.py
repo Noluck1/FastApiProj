@@ -1,6 +1,5 @@
-
-from app.database import new_session
-from app.books.repository import BookRepository
+from app.shared.config.database import new_session
+from app.infrastructure.sqllitdb.repositories.book_repository import BookRepository
 
 
 class UnitOfWork:

@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy import select
-from app.books.models import BooksOrm
-from app.books.schemas import SBooksAdd, SBooks, SBooksUpdate
-
+from app.infrastructure.sqllitdb.models.book_model import BooksOrm
+from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate
+from app.books.exceptions import NotFoundError
 
 class BookRepository:
     def __init__(self, session):
@@ -15,15 +15,12 @@ class BookRepository:
         self.session.add(new_book)
         await self.session.flush()
 
-        return new_book.id
+        return new_book.title
 
 
     async def get_books(self):
         result = await self.session.execute(select(BooksOrm))
         books = result.scalars().all()
-
-        if books is None:
-            raise HTTPException(status_code=404, detail="Book not found")
 
         return books
 
@@ -34,7 +31,7 @@ class BookRepository:
         book = result.scalar_one_or_none()
 
         if book is None:
-            raise HTTPException(status_code=404, detail="Book not found")
+            raise NotFoundError(id=book_id)
 
         return book
 

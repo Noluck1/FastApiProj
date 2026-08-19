@@ -1,4 +1,4 @@
-from app.books.schemas import SBooksUpdate, SBooksAdd, SBooks
+from app.shared.dtos.book_dto import SBooksUpdate, SBooksAdd
 from app.books.unit_of_work import UnitOfWork
 
 
@@ -26,5 +26,7 @@ class BookService:
     async def delete_book(self, book_id: int):
         async with UnitOfWork() as uow:
             deleted_book_id = await uow.books.delete_book(book_id)
+
             await uow.commit()
+
             return deleted_book_id

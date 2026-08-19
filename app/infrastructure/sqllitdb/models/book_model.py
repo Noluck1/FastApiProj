@@ -1,8 +1,5 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-
-class Model(DeclarativeBase):
-    pass
+from sqlalchemy.orm import Mapped, mapped_column
+from app.infrastructure.sqllitdb.base import Model
 
 class BooksOrm(Model):
     __tablename__ = "books"
