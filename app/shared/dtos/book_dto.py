@@ -16,11 +16,3 @@ class SBooks(SBooksAdd):
 class SBooksUpdate(BaseModel):
     title: str | None
     author: str | None 
-
-
-# class BookDTO(BaseModel):
-#     id: int
-#     message: str
-#     created_at: datetime
-#     update_at: datetime
-#     is_deleated: bool
