@@ -16,3 +16,11 @@ class SBooks(SBooksAdd):
 class SBooksUpdate(BaseModel):
     title: str | None
     author: str | None 
+
+
+class BooksDto(BaseModel):
+    id: int
+    title: str
+    author: str
+
+    model_config = ConfigDict(from_attributes=True)
