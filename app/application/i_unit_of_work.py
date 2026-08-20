@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-
+from typing import Self
+from types import TracebackType
 
 class IUnitOfWork(ABC):
     @abstractmethod
@@ -7,7 +8,13 @@ class IUnitOfWork(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(
+        self, 
+        exc_type: type[BaseException] | None, 
+        exc: BaseException | None, 
+        tb: TracebackType | None,
+
+    ) -> None:
         raise NotImplementedError
 
     @abstractmethod

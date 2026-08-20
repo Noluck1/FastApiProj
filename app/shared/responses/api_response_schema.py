@@ -1,10 +1,10 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Literal
 from pydantic import BaseModel
 
 
 T = TypeVar("T")
 
 class ApiResponseSchema(BaseModel, Generic[T]):
-    status: str
+    status: Literal["success", "error"]
     message: str
     data: T | None = None

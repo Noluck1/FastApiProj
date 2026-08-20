@@ -4,6 +4,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
+from app.shared.dtos.book_dto import BooksDto
 
 router = APIRouter(
     prefix="/books",
@@ -15,7 +16,7 @@ router = APIRouter(
 async def add_book(
     book: SBooksAdd,
     service: FromDishka[BookService] 
-) -> ApiResponseSchema:
+) -> ApiResponseSchema[BooksDto]:
     
     result = await service.add_book(book)
 
@@ -26,7 +27,7 @@ async def add_book(
 @router.get("")
 async def get_books(
     service: FromDishka[BookService]
-) -> ApiResponseSchema:
+) -> ApiResponseSchema[list[BooksDto]]:
     
     result = await service.get_books()
 
@@ -36,7 +37,7 @@ async def get_books(
 async def get_book_id(
     book_id: int,
     service: FromDishka[BookService]
-) -> ApiResponseSchema:
+) -> ApiResponseSchema[BooksDto]:
     
     result = await service.get_book_id(book_id)
 
@@ -48,7 +49,7 @@ async def update_book(
     book_id: int, 
     book: SBooksUpdate,
     service: FromDishka[BookService]
-) -> ApiResponseSchema:
+) -> ApiResponseSchema[BooksDto]:
     
     result = await service.update_book(book_id, book)
 
@@ -58,7 +59,7 @@ async def update_book(
 async def delete_book(
     book_id: int,
     service: FromDishka[BookService]
-) -> ApiResponseSchema:
+) -> ApiResponseSchema[BooksDto]:
     
     result = await service.delete_book(book_id)
 

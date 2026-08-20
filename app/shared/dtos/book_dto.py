@@ -14,8 +14,8 @@ class SBooks(SBooksAdd):
     model_config = ConfigDict(from_attributes=True)
 
 class SBooksUpdate(BaseModel):
-    title: str | None
-    author: str | None 
+    title: str | None = Field(default=None, min_length=5)
+    author: str | None = Field(default=None, min_length=5)
 
 
 class BooksDto(BaseModel):

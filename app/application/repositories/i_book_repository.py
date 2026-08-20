@@ -7,7 +7,7 @@ class IBookRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_books(self) -> BooksDto:
+    async def get_books(self) -> list[BooksDto]:
         raise NotImplementedError
 
     @abstractmethod

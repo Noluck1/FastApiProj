@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.infrastructure.sqllitdb.models.book_model import BooksOrm
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SBooks, BooksDto
@@ -6,7 +6,7 @@ from app.application.exceptions import NotFoundError
 from app.application.repositories.i_book_repository import IBookRepository
 
 class BookRepository(IBookRepository):
-    def __init__(self, session):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def add_book(self, book: SBooksAdd) -> BooksDto:
@@ -22,9 +22,6 @@ class BookRepository(IBookRepository):
     async def get_books(self) -> list[BooksDto]:
         result = await self.session.execute(select(BooksOrm))
         books = result.scalars().all()
-
-        if not books:
-            raise NotFoundError(id=books)
 
         return [BooksDto.model_validate(book) for book in books]
 
@@ -48,7 +45,7 @@ class BookRepository(IBookRepository):
     async def update_book(self, book_id: int, book: SBooksUpdate) -> BooksDto:
         book_model = await self._get_model_by_id(book_id)
 
-        data = book.model_dump(exclude_unset=True)
+        data = book.model_dump(exclude_unset=True, exclude_none=True)
 
         for key, value in data.items():
             setattr(book_model, key, value)
