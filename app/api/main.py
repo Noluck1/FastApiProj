@@ -9,8 +9,8 @@ from app.auth.auth_exceptions import (
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
 )
-from app.api.routers import auth as auth_router
-from app.shared.config.database import settings
+from app.api.routers.auth import router as auth_router
+from app.shared.config.settings import settings
 from app.api.routers.book import router as book_router
 from app.application.exceptions import NotFoundError
 from app.api.dependency_injection.container import build_container
@@ -66,6 +66,8 @@ async def not_found_handler(
 
 @app.exception_handler(InvalidCredentialsError)
 async def invalid_credentials_handler(
+    _request: Request,
+    _exc: InvalidCredentialsError,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=401,
@@ -76,6 +78,8 @@ async def invalid_credentials_handler(
 
 @app.exception_handler(InactiveUserError)
 async def inactive_user_handler(
+    _request: Request,
+    _exc: InvalidCredentialsError,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=403,
@@ -85,6 +89,8 @@ async def inactive_user_handler(
 
 @app.exception_handler(ForbiddenError)
 async def forbidden_handler(
+    _request: Request,
+    _exc: InvalidCredentialsError,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=403,
@@ -94,6 +100,8 @@ async def forbidden_handler(
 
 @app.exception_handler(UsernameAlreadyExistsError)
 async def username_exists_handler(
+    _request: Request,
+    _exc: InvalidCredentialsError,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=409,

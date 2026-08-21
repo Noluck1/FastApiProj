@@ -1,9 +1,8 @@
 from datetime import datetime, timezone, timedelta
-from importlib.metadata import requires
 from uuid import uuid4
 
 import jwt
-from jwt import InvalidTokenError
+from jwt.exceptions import InvalidTokenError
 
 from app.auth.auth_exceptions import InvalidCredentialsError
 
@@ -53,7 +52,7 @@ class TokenService:
                 issuer=self._issuer,
                 audience=self._audience,
                 options={
-                    "requires": [
+                    "require": [
                         "sub",
                         "type",
                         "iat",
@@ -64,7 +63,7 @@ class TokenService:
                 },
             )
 
-            if payload["type"] == "access":
+            if payload["type"] != "access":
                 raise InvalidCredentialsError
 
             return int(payload["sub"])

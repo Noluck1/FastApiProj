@@ -65,7 +65,7 @@ class AuthService:
                 stored_hash,
             )
 
-            if user is None or password_is_valid:
+            if user is None or not password_is_valid:
                 raise InvalidCredentialsError
 
             if not user.is_active:

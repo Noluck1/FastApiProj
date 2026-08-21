@@ -25,5 +25,5 @@ class IUserRepository(ABC):
         self,
         username: str,
         password_hash: str,
-    ) -> UserDto | None:
+    ) -> UserDto:
         raise NotImplementedError

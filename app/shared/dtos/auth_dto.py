@@ -21,7 +21,7 @@ class UserDto(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class UserWithPasswordDto(BaseModel):
+class UserWithPasswordDto(UserDto):
     password_hash: str
 
 
