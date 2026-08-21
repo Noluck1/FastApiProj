@@ -1,10 +1,16 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from app.application.handlers.book.service import BookService
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
+
+from app.shared.dtos.auth_dto import UserDto
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from app.shared.dtos.book_dto import BooksDto
+from app.auth.dependencies import get_current_user, require_roles
+
 
 router = APIRouter(
     prefix="/books",
@@ -15,7 +21,11 @@ router = APIRouter(
 @router.post("")
 async def add_book(
     book: SBooksAdd,
-    service: FromDishka[BookService] 
+    service: FromDishka[BookService],
+    _current_user: Annotated[
+        UserDto,
+        Depends(get_current_user),
+    ],
 ) -> ApiResponseSchema[BooksDto]:
     
     result = await service.add_book(book)
@@ -48,7 +58,11 @@ async def get_book_id(
 async def update_book(
     book_id: int, 
     book: SBooksUpdate,
-    service: FromDishka[BookService]
+    service: FromDishka[BookService],
+    _current_user: Annotated[
+        UserDto,
+        Depends(require_roles("admin", "editor")),
+    ],
 ) -> ApiResponseSchema[BooksDto]:
     
     result = await service.update_book(book_id, book)
@@ -58,7 +72,11 @@ async def update_book(
 @router.delete("/{book_id}")
 async def delete_book(
     book_id: int,
-    service: FromDishka[BookService]
+    service: FromDishka[BookService],
+    _current_user: Annotated[
+        UserDto,
+        Depends(require_roles("admin")),
+    ],
 ) -> ApiResponseSchema[BooksDto]:
     
     result = await service.delete_book(book_id)

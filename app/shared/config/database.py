@@ -1,15 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from app.infrastructure.sqllitdb.base import Model
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from app.shared.config.settings import settings
 
-class Settings(BaseSettings):
-  database_url: str
-  log_level: str = "INFO"
-  
-  model_config = SettingsConfigDict(env_file=".env")
-
-
-settings = Settings()
 
 engine = create_async_engine(settings.database_url)
 
