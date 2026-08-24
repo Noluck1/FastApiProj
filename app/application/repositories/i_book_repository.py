@@ -3,7 +3,7 @@ from app.shared.dtos.book_dto import SBooksAdd, BooksDto, SBooksUpdate
 
 class IBookRepository(ABC):
     @abstractmethod
-    async def add_book(self, book: SBooksAdd) -> BooksDto:
+    async def add_book(self, book: SBooksAdd, author_id: int) -> BooksDto:
         raise NotImplementedError
 
     @abstractmethod

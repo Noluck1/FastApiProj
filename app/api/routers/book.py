@@ -24,7 +24,7 @@ async def add_book(
     service: FromDishka[BookService],
     current_user: Annotated[
         UserDto,
-        Depends(require_roles(UserRole.AUTHOR)),
+        Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
@@ -74,7 +74,7 @@ async def delete_book(
     service: FromDishka[BookService],
     current_user: Annotated[
         UserDto,
-        Depends(require_roles(UserRole.ADMIN)),
+        Depends(require_roles(UserRole.ADMIN, UserRole.AUTHOR)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
     

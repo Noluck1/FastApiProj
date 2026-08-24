@@ -18,7 +18,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 @inject
 async def get_current_user(
-        token: Annotated[str, Depends(oauth2_scheme)],
+        token: Annotated[str | None, Depends(oauth2_scheme)],
         service: FromDishka[AuthService],
 ) -> UserDto:
 

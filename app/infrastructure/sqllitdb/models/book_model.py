@@ -10,7 +10,7 @@ class BooksOrm(Model):
     title: Mapped[str]
 
     author_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
