@@ -1,12 +1,12 @@
 from typing import Annotated
-
+from app.shared.responses.api_response import success
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Form
 from starlette import status
-from fastapi.security import OAuth2PasswordRequestForm
 from app.auth.auth_service import AuthService
-from app.shared.dtos.auth_dto import UserDto, RegisterRequest, TokenResponse
+from app.shared.dtos.auth_dto import UserDto, RegisterRequest, TokenResponse, LoginRequest
+from app.shared.responses.api_response_schema import ApiResponseSchema
 
 router = APIRouter(
     prefix="/auth",
@@ -17,28 +17,38 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=UserDto,
+    response_model=ApiResponseSchema[UserDto],
     status_code=status.HTTP_201_CREATED,
 )
 async def register(
-        data: RegisterRequest,
+        data: Annotated[
+            RegisterRequest, 
+            Form(),
+        ],
         service: FromDishka[AuthService],
-) -> UserDto:
-    return await service.register(data)
+) -> ApiResponseSchema[UserDto]:
+
+    result = await service.register(data)
+    
+    return success(message="User registered", data=result)
 
 
 @router.post(
     "/login",
-    response_model=TokenResponse,
+    response_model=ApiResponseSchema[TokenResponse],
 )
 async def login(
     form: Annotated[
-        OAuth2PasswordRequestForm,
-        Depends(),
+        LoginRequest,
+        Form(),
     ],
     service: FromDishka[AuthService],
-) -> TokenResponse:
-    return await service.login(
-        username=form.username,
-        password=form.password,
+) -> ApiResponseSchema[TokenResponse]:
+
+    result =await service.login(
+        username=form.username, 
+        password=form.password.get_secret_value(),
+
     )
+
+    return success(message="Login successful", data=result)

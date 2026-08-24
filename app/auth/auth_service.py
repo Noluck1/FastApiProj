@@ -29,11 +29,11 @@ class AuthService:
             existing_user = await self._repository.get_by_username(data.username)
 
             if existing_user is not None:
-                raise UsernameAlreadyExistsError
+                raise UsernameAlreadyExistsError(username=data.username)
 
             password_hash = await to_thread.run_sync(
                 hash_password,
-                data.password,
+                data.password.get_secret_value(),
             )
 
             user = await self._repository.add(

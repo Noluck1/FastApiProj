@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.shared.enums.user_role import UserRole
 from app.auth.i_user_repository import IUserRepository
 from app.infrastructure.sqllitdb.models.user_model import UserOrm
 from app.shared.dtos.auth_dto import UserWithPasswordDto, UserDto
@@ -43,7 +43,7 @@ class UserRepository(IUserRepository):
         user = UserOrm(
             username=username,
             password_hash=password_hash,
-            role="user",
+            role=UserRole.USER,
             is_active=True,
         )
 

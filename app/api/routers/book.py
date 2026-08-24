@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from app.application.handlers.book.service import BookService
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-
+from app.shared.enums.user_role import UserRole
 from app.shared.dtos.auth_dto import UserDto
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate
 from app.shared.responses.api_response import success
@@ -22,18 +22,17 @@ router = APIRouter(
 async def add_book(
     book: SBooksAdd,
     service: FromDishka[BookService],
-    _current_user: Annotated[
+    current_user: Annotated[
         UserDto,
-        Depends(get_current_user),
+        Depends(require_roles(UserRole.AUTHOR)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
-    result = await service.add_book(book)
+    result = await service.add_book(book, current_user=current_user)
 
     return success(data=result, message="Book created successfully")
 
-
-# не работает пофиксить 
+ 
 @router.get("")
 async def get_books(
     service: FromDishka[BookService]
@@ -59,13 +58,13 @@ async def update_book(
     book_id: int, 
     book: SBooksUpdate,
     service: FromDishka[BookService],
-    _current_user: Annotated[
+    current_user: Annotated[
         UserDto,
-        Depends(require_roles("admin", "editor")),
+        Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
-    result = await service.update_book(book_id, book)
+    result = await service.update_book(book_id, book, current_user=current_user)
 
     return success(data=result, message="Book deleted successfully")
 
@@ -73,12 +72,12 @@ async def update_book(
 async def delete_book(
     book_id: int,
     service: FromDishka[BookService],
-    _current_user: Annotated[
+    current_user: Annotated[
         UserDto,
-        Depends(require_roles("admin")),
+        Depends(require_roles(UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
-    result = await service.delete_book(book_id)
+    result = await service.delete_book(book_id, current_user=current_user)
 
     return success(data=result, message="Book deleted successfully")

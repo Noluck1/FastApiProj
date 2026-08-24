@@ -3,6 +3,9 @@ from app.shared.dtos.book_dto import SBooksUpdate, SBooksAdd
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.repositories.i_book_repository import IBookRepository
 from app.shared.dtos.book_dto import BooksDto
+from app.shared.dtos.auth_dto import UserDto
+from app.shared.enums.user_role import UserRole
+from app.auth.auth_exceptions import ForbiddenError
 
 logger = logging.getLogger(__name__)
 
@@ -14,20 +17,45 @@ class BookService:
     ) -> None:
         self._repository = repository
         self._uow = uow
+
+
+    @staticmethod
+    def _ensure_can_manage_book(
+        currnet_user: UserDto,
+        book: BooksDto,
+    ) -> None:
         
+        if currnet_user.role == UserRole.ADMIN:
+            return
+
+        if (
+            currnet_user.role == UserRole.AUTHOR
+            and book.author_id == currnet_user.id
+        ):
+            
+            return
+
+        raise ForbiddenError(
+            role=currnet_user.role.value
+        )
 
 
     async def add_book(
             self, 
-            book: SBooksAdd
+            book: SBooksAdd,
+            current_user: UserDto,
     ) -> BooksDto:
         async with self._uow:
-            created_book = await self._repository.add_book(book)
+            created_book = await self._repository.add_book(
+                book=book,
+                author_id=current_user.id
+            )
             await self._uow.commit()
 
             logger.info(
-                "Book created: book_id=%s",
+                "Book created: book_id=%s author_id=%s",
                 created_book.id,
+                current_user.id,
             )
 
             return created_book
@@ -48,9 +76,21 @@ class BookService:
     async def update_book(
             self, 
             book_id: int, 
-            book: SBooksUpdate
+            book: SBooksUpdate,
+            current_user: UserDto
     ) -> BooksDto:
         async with self._uow:
+            existing_book = await self._repository.get_book_id(
+                book_id
+            )
+
+
+            self._ensure_can_manage_book(
+                currnet_user=current_user,
+                book=existing_book
+            )
+
+
             update_book = await self._repository.update_book(book_id, book)
             await self._uow.commit()
 
@@ -64,9 +104,19 @@ class BookService:
 
     async def delete_book(
             self, 
-            book_id: int
+            book_id: int,
+            current_user: UserDto,
     ) -> BooksDto:
         async with self._uow:
+            existing_book = await self._repository.get_book_id(
+                book_id
+            )
+
+            self._ensure_can_manage_book(
+                currnet_user=current_user,
+                book=existing_book,
+            )
+
             deleted_book_id = await self._repository.delete_book(book_id)
             await self._uow.commit()
 

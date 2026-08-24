@@ -9,9 +9,11 @@ class BookRepository(IBookRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def add_book(self, book: SBooksAdd) -> BooksDto:
-        data = book.model_dump()
-        new_book = BooksOrm(**data)
+    async def add_book(self, book: SBooksAdd, author_id: int,) -> BooksDto:
+        new_book = BooksOrm(
+            title=book.title,
+            author_id=author_id,
+        )
 
         self.session.add(new_book)
         await self.session.flush()

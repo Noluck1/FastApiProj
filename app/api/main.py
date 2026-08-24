@@ -8,7 +8,9 @@ from app.auth.auth_exceptions import (
     InactiveUserError,
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
+    UnAuthorizedError,
 )
+from fastapi.encoders import jsonable_encoder
 from app.api.routers.auth import router as auth_router
 from app.shared.config.settings import settings
 from app.api.routers.book import router as book_router
@@ -16,6 +18,7 @@ from app.application.exceptions import NotFoundError
 from app.api.dependency_injection.container import build_container
 from collections.abc import AsyncIterator
 from app.shared.config.logging_config import configure_logging
+from app.shared.responses.api_response import error
 
 configure_logging(settings.log_level)
 
@@ -58,9 +61,11 @@ async def not_found_handler(
         request.url.path,
     )
 
+    response = error(message=f"Book not found", data={"book_id": exc.id})
+
     return JSONResponse(
         status_code=404,
-        content={"message": f"Книга '{exc.id}' на найдена."}
+        content=jsonable_encoder(response)
     )
 
 
@@ -69,43 +74,68 @@ async def invalid_credentials_handler(
     _request: Request,
     _exc: InvalidCredentialsError,
 ) -> JSONResponse:
+
+    response = error(message="Invalid username, password or token")
+    
     return JSONResponse(
         status_code=401,
-        content={"message": "Invalid username, password or token"},
-        headers={"WWW-Authenticate": "Bearer"},
+        content=jsonable_encoder(response),
+        headers={"WWW-Authenticate": "Bearer"}
     )
 
 
 @app.exception_handler(InactiveUserError)
 async def inactive_user_handler(
     _request: Request,
-    _exc: InvalidCredentialsError,
+    _exc: InactiveUserError,
 ) -> JSONResponse:
+
+    response = error(message="User is inactive")
+    
     return JSONResponse(
         status_code=403,
-        content={"message": "User is inactive"},
+        content=jsonable_encoder(response),
     )
 
 
 @app.exception_handler(ForbiddenError)
 async def forbidden_handler(
     _request: Request,
-    _exc: InvalidCredentialsError,
+    _exc: ForbiddenError,
 ) -> JSONResponse:
+
+    response = error(message="Insufficient permissions", data={"role": _exc.role})
+    
     return JSONResponse(
         status_code=403,
-        content={"message": "Insufficient permissions"},
+        content=jsonable_encoder(response),
     )
 
 
 @app.exception_handler(UsernameAlreadyExistsError)
 async def username_exists_handler(
     _request: Request,
-    _exc: InvalidCredentialsError,
+    exc: UsernameAlreadyExistsError,
 ) -> JSONResponse:
+
+    response = error(message="Username already exists", data={"field": exc.username})
+    
     return JSONResponse(
         status_code=409,
-        content={"message": "Username already exists"},
+        content=jsonable_encoder(response),
+    )
+
+@app.exception_handler(UnAuthorizedError)
+async def un_authorized_error(
+    _request: Request,
+    _exc: UnAuthorizedError,
+) -> JSONResponse:
+
+    response = error(message="User is not authorized")
+
+    return JSONResponse(
+        status_code=401,
+        content=jsonable_encoder(response)
     )
 
 @app.exception_handler(Exception)
@@ -119,7 +149,9 @@ async def unexpected_error_handler(
         request.url.path,
     )
 
+    response = error(message="Internal server error")
+
     return JSONResponse(
         status_code=500,
-        content={"message": "Internal server error"}
+        content=jsonable_encoder(response)
     )

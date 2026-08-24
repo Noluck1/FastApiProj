@@ -7,7 +7,6 @@ class SBookId(BaseModel):
 
 class SBooksAdd(BaseModel):
     title: str = Field(min_length=5)
-    author: str = Field(min_length=5)
 
 class SBooks(SBooksAdd):
     id: int
@@ -15,12 +14,10 @@ class SBooks(SBooksAdd):
 
 class SBooksUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=5)
-    author: str | None = Field(default=None, min_length=5)
-
 
 class BooksDto(BaseModel):
     id: int
     title: str
-    author: str
+    author_id: int
 
     model_config = ConfigDict(from_attributes=True)
