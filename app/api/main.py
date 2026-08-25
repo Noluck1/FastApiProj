@@ -9,6 +9,7 @@ from app.auth.auth_exceptions import (
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
     UnAuthorizedError,
+    NotBookOwnerError,
 )
 from fastapi.encoders import jsonable_encoder
 from app.api.routers.auth import router as auth_router
@@ -135,6 +136,25 @@ async def un_authorized_error(
 
     return JSONResponse(
         status_code=401,
+        content=jsonable_encoder(response)
+    )
+
+@app.exception_handler(NotBookOwnerError)
+async def not_book_owner_error(
+    _request: Request,
+    exc: NotBookOwnerError,
+) -> JSONResponse:
+
+    response = error(
+        message="This book does not belong to the current user", 
+        data={
+            "book_id": exc.book_id,
+            "user_id": exc.user_id,
+        },
+    )
+
+    return JSONResponse(
+        status_code=403,
         content=jsonable_encoder(response)
     )
 

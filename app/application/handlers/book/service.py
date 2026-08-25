@@ -5,7 +5,9 @@ from app.application.repositories.i_book_repository import IBookRepository
 from app.shared.dtos.book_dto import BooksDto
 from app.shared.dtos.auth_dto import UserDto
 from app.shared.enums.user_role import UserRole
-from app.auth.auth_exceptions import ForbiddenError
+from app.auth.auth_exceptions import ForbiddenError, NotBookOwnerError
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +37,9 @@ class BookService:
             
             return
 
-        raise ForbiddenError(
-            role=currnet_user.role.value
+        raise NotBookOwnerError(
+            user_id=currnet_user.id,
+            book_id=book.id,
         )
 
 

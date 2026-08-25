@@ -7,6 +7,7 @@ from starlette import status
 from app.auth.auth_service import AuthService
 from app.shared.dtos.auth_dto import UserDto, RegisterRequest, TokenResponse, LoginRequest
 from app.shared.responses.api_response_schema import ApiResponseSchema
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     prefix="/auth",
@@ -52,3 +53,21 @@ async def login(
     )
 
     return success(message="Login successful", data=result)
+
+
+@router.post(
+    "/token",
+    response_model=TokenResponse,
+    include_in_schema=False
+)
+async def oauth2_token(
+    form: Annotated[
+        OAuth2PasswordRequestForm,
+        Depends(),
+    ],
+    service: FromDishka[AuthService],
+) -> TokenResponse:
+    return await service.login(
+        username=form.username,
+        password=form.password,
+    )

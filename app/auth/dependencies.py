@@ -11,7 +11,7 @@ from app.auth.auth_service import AuthService
 from app.shared.dtos.auth_dto import UserDto
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
+    tokenUrl="/auth/token",
     auto_error=False
 )
 

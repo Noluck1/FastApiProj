@@ -1,7 +1,7 @@
 from __future__ import annotations
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.infrastructure.sqllitdb.base import Model
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey
 
 class BooksOrm(Model):
     __tablename__ = "books"
