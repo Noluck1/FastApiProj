@@ -4,9 +4,7 @@ from app.application.i_unit_of_work import IUnitOfWork
 from app.application.repositories.i_book_repository import IBookRepository
 from app.shared.dtos.book_dto import BooksDto
 from app.shared.dtos.auth_dto import UserDto
-from app.shared.enums.user_role import UserRole
-from app.auth.auth_exceptions import ForbiddenError, NotBookOwnerError
-
+from app.application.repositories.i_book_access import IBookAccess
 
 
 logger = logging.getLogger(__name__)
@@ -16,31 +14,11 @@ class BookService:
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
+        book_access: IBookAccess,
     ) -> None:
         self._repository = repository
         self._uow = uow
-
-
-    @staticmethod
-    def _ensure_can_manage_book(
-        currnet_user: UserDto,
-        book: BooksDto,
-    ) -> None:
-        
-        if currnet_user.role == UserRole.ADMIN:
-            return
-
-        if (
-            currnet_user.role == UserRole.AUTHOR
-            and book.author_id == currnet_user.id
-        ):
-            
-            return
-
-        raise NotBookOwnerError(
-            user_id=currnet_user.id,
-            book_id=book.id,
-        )
+        self._book_access = book_access
 
 
     async def add_book(
@@ -88,8 +66,8 @@ class BookService:
             )
 
 
-            self._ensure_can_manage_book(
-                currnet_user=current_user,
+            self._book_access.ensure_can_manage(
+                user=current_user,
                 book=existing_book
             )
 
@@ -115,12 +93,12 @@ class BookService:
                 book_id
             )
 
-            self._ensure_can_manage_book(
-                currnet_user=current_user,
+            self._book_access.ensure_can_manage(
+                user=current_user,
                 book=existing_book,
             )
 
-            deleted_book_id = await self._repository.delete_book(book_id)
+            deleted_book_id = await self._repository.deleteb_ook(book_id)
             await self._uow.commit()
 
             logger.info(

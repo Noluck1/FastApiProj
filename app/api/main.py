@@ -9,7 +9,7 @@ from app.auth.auth_exceptions import (
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
     UnAuthorizedError,
-    NotBookOwnerError,
+    BookAccessDeniedError,
 )
 from fastapi.encoders import jsonable_encoder
 from app.api.routers.auth import router as auth_router
@@ -139,10 +139,10 @@ async def un_authorized_error(
         content=jsonable_encoder(response)
     )
 
-@app.exception_handler(NotBookOwnerError)
+@app.exception_handler(BookAccessDeniedError)
 async def not_book_owner_error(
     _request: Request,
-    exc: NotBookOwnerError,
+    exc: BookAccessDeniedError,
 ) -> JSONResponse:
 
     response = error(
