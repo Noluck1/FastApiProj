@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from datetime import datetime, timezone
+from sqlalchemy import select, delete
 from app.infrastructure.sqllitdb.models.book_model import BooksOrm
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SBooks, BooksDto
 from app.application.exceptions import NotFoundError
@@ -22,14 +23,20 @@ class BookRepository(IBookRepository):
 
 
     async def get_books(self) -> list[BooksDto]:
-        result = await self.session.execute(select(BooksOrm))
+        result = await self.session.execute(select(BooksOrm).where(BooksOrm.is_deleted.is_(False)))
         books = result.scalars().all()
 
         return [BooksDto.model_validate(book) for book in books]
 
 
     async def _get_model_by_id(self, book_id: int) -> BooksOrm:
-        book_model = await self.session.get(BooksOrm, book_id)
+        result = await self.session.execute(
+            select(BooksOrm).where(
+                BooksOrm.id == book_id,
+                BooksOrm.is_deleted.is_(False)
+            ))
+
+        book_model = result.scalar_one_or_none()
 
         if book_model is None:
             raise NotFoundError(id=book_id)
@@ -59,8 +66,22 @@ class BookRepository(IBookRepository):
     async def delete_book(self, book_id: int) -> BooksDto:
         book_model = await self._get_model_by_id(book_id)
 
-        deleted_book = BooksDto.model_validate(book_model)
+        book_model.is_deleted = True
+        book_model.deleted_at = datetime.now(timezone.utc)
 
-        await self.session.delete(book_model)
+        await self.session.flush()
 
-        return deleted_book
+        return BooksDto.model_validate(book_model)
+
+    async def purge_deleted_before(self, cutoff: datetime) -> int:
+        statement = delete(BooksOrm).where(
+            BooksOrm.is_deleted.is_(True),
+            BooksOrm.deleted_at.is_not(None),
+            BooksOrm.deleted_at <= cutoff,
+        )
+
+
+        result = await self.session.execute(statement)
+        await self.session.flush()
+
+        return result.rowcount or 0

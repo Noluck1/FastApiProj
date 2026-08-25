@@ -98,7 +98,7 @@ class BookService:
                 book=existing_book,
             )
 
-            deleted_book_id = await self._repository.deleteb_ook(book_id)
+            deleted_book_id = await self._repository.delete_book(book_id)
             await self._uow.commit()
 
             logger.info(

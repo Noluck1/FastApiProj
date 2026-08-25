@@ -1,4 +1,5 @@
 import logging
+from app.infrastructure.scheduler import create_scheduler
 from fastapi import FastAPI, Request
 from dishka.integrations.fastapi import setup_dishka
 from fastapi.responses import JSONResponse
@@ -31,13 +32,17 @@ containter = build_container()
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Application startup started")
 
-    yield
+    scheduler = create_scheduler()
+    scheduler.start()
 
-    logger.info("Application shutdown started")
+    try:
+        yield
+    finally:
 
-    await app.state.dishka_container.close()
+        scheduler.shutdown(wait=False)
+        await app.state.dishka_container.close()
 
-    logger.info("Application shotdown completed")
+        logger.info("Application shotdown completed")
 
 
 app = FastAPI(lifespan=lifespan)

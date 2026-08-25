@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from app.shared.dtos.book_dto import SBooksAdd, BooksDto, SBooksUpdate
 
 class IBookRepository(ABC):
@@ -21,4 +22,8 @@ class IBookRepository(ABC):
     @abstractmethod
     async def delete_book(self, book_id: int) -> BooksDto:
         raise NotImplementedError
-    
+
+
+    @abstractmethod
+    async def purge_deleted_before(self, cutoff: datetime) -> int:
+        raise NotImplementedError
