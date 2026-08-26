@@ -83,7 +83,7 @@ class BookService:
     async def put_update_book(
             self, 
             book_id: int, 
-            book: SBooksUpdate,
+            book: SPutBookUpdate,
             current_user: UserDto
     ) -> BooksDto:
         async with self._uow:
@@ -98,7 +98,7 @@ class BookService:
             )
 
 
-            update_book = await self._repository.update_book(
+            update_book = await self._repository.put_update_book(
                 book_id, 
                 book, 
                 updated_by_id=current_user.id,
@@ -116,35 +116,35 @@ class BookService:
     async def patch_update_book(
                 self, 
                 book_id: int, 
-                book: SPutBookUpdate,
+                book: SBooksUpdate,
                 current_user: UserDto
-        ) -> BooksDto:
-            async with self._uow:
-                existing_book = await self._repository.get_book_id(
-                    book_id
-                )
-    
-    
-                self._book_access.ensure_can_manage(
-                    user=current_user,
-                    book=existing_book
-                )
-    
-    
-                update_book = await self._repository.update_book(
-                    book_id, 
-                    book, 
-                    updated_by_id=current_user.id,
-                )
-                await self._uow.commit()
-    
-                logger.info(
-                    "Book updated: book_id=%s changed_fields=%s",
-                    book_id,
-                    sorted(book.model_fields_set),
-                )
-    
-                return update_book
+    ) -> BooksDto:
+        async with self._uow:
+            existing_book = await self._repository.get_book_id(
+                book_id
+            )
+
+
+            self._book_access.ensure_can_manage(
+                user=current_user,
+                book=existing_book
+            )
+
+
+            update_book = await self._repository.patch_update_book(
+                book_id, 
+                book, 
+                updated_by_id=current_user.id,
+            )
+            await self._uow.commit()
+
+            logger.info(
+                "Book updated: book_id=%s changed_fields=%s",
+                book_id,
+                sorted(book.model_fields_set),
+            )
+
+            return update_book
     
 
     async def delete_book(
