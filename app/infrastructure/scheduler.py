@@ -19,7 +19,7 @@ async def purge_deleted_books_job() -> None:
         )
 
         deleted_count = await service.purge_expired_books(
-            retention_minutes=settings.book_cleanup_retention_minutes,
+            retention_days=settings.book_cleanup_retention_days,
         )
 
     logger.info(
@@ -33,7 +33,7 @@ def create_scheduler() -> AsyncIOScheduler:
     scheduler.add_job(
         purge_deleted_books_job,
         trigger="interval",
-        seconds=settings.book_cleanup_interval_seconds,
+        hours=settings.book_cleanup_interval_hours,
         id="purge-deleted-books",
         replace_existing=True,
         coalesce=True,

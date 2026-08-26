@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from app.shared.dtos.book_dto import SBooksAdd, BooksDto, SBooksUpdate
+from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
 
 class IBookRepository(ABC):
     @abstractmethod
@@ -8,7 +9,15 @@ class IBookRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_books(self) -> list[BooksDto]:
+    async def get_books(
+        self, 
+        *,
+        page: int,
+        page_size: int,
+        filters: BookListFilters,
+        sort_by: BookListSortBy,
+        sort_order: SortOrder,
+    ) -> tuple[list[BooksDto], int]:
         raise NotImplementedError
 
     @abstractmethod
@@ -16,11 +25,11 @@ class IBookRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update_book(self, book_id: int, book: SBooksUpdate) -> BooksDto:
+    async def update_book(self, book_id: int, book: SBooksUpdate, updated_by_id: int) -> BooksDto:
         raise NotImplementedError
 
     @abstractmethod
-    async def delete_book(self, book_id: int) -> BooksDto:
+    async def delete_book(self, book_id: int, updated_by_id: int) -> BooksDto:
         raise NotImplementedError
 
 

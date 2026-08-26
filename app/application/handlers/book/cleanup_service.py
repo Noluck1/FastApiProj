@@ -15,10 +15,10 @@ class BookCleanupService:
 
     async def purge_expired_books(
         self,
-        retention_minutes: int,
+        retention_days: int,
     ) -> int:
         cutoff = datetime.now(timezone.utc) - timedelta(
-            minutes=retention_minutes,
+            days=retention_days,
         )
 
         async with self._uow:

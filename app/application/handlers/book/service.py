@@ -1,11 +1,12 @@
 import logging
+from app.shared.dtos.pagination_dto import PaginatedDro
 from app.shared.dtos.book_dto import SBooksUpdate, SBooksAdd
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.repositories.i_book_repository import IBookRepository
 from app.shared.dtos.book_dto import BooksDto
 from app.shared.dtos.auth_dto import UserDto
 from app.application.repositories.i_book_access import IBookAccess
-
+from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +42,34 @@ class BookService:
 
             return created_book
 
-    async def get_books(self) -> list[BooksDto]:
+    async def get_books(
+        self, 
+        page: int, 
+        page_size: int,
+        filters:BookListFilters,
+        sort_by: BookListSortBy,
+        sort_order: SortOrder,
+    ) -> PaginatedDro[BooksDto]:
+        
         async with self._uow:
+            books, total = await self._repository.get_books(
+                page=page,
+                page_size=page_size,
+                filters=filters,
+                sort_by=sort_by,
+                sort_order=sort_order,
+            )
 
-            return await self._repository.get_books()
+        total_pages = (total + page_size - 1) // page_size
+
+
+        return PaginatedDro[BooksDto](
+            item=books,
+            page=page,
+            page_size=page_size,
+            total=total,
+            total_pages=total_pages,
+        )
 
     async def get_book_id(
             self, 
@@ -72,7 +97,11 @@ class BookService:
             )
 
 
-            update_book = await self._repository.update_book(book_id, book)
+            update_book = await self._repository.update_book(
+                book_id, 
+                book, 
+                updated_by_id=current_user.id,
+            )
             await self._uow.commit()
 
             logger.info(
@@ -98,7 +127,7 @@ class BookService:
                 book=existing_book,
             )
 
-            deleted_book_id = await self._repository.delete_book(book_id)
+            deleted_book_id = await self._repository.delete_book(book_id, updated_by_id=current_user.id)
             await self._uow.commit()
 
             logger.info(

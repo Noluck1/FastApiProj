@@ -15,3 +15,7 @@ exclude = [
 [tool.pydantic-mypy]
 init_typed = true
 warn_required_dynamic_aliases = true
+
+[[tool.mypy.overrides]]
+module = ["apscheduler.*"]
+ignore_missing_imports = true

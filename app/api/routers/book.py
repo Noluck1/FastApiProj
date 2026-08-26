@@ -1,6 +1,6 @@
 from typing import Annotated
-
-from fastapi import APIRouter, Depends
+from app.shared.dtos.pagination_dto import PaginatedDro
+from fastapi import APIRouter, Depends, Query
 from app.application.handlers.book.service import BookService
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from app.shared.enums.user_role import UserRole
@@ -10,7 +10,8 @@ from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from app.shared.dtos.book_dto import BooksDto
 from app.auth.dependencies import get_current_user, require_roles
-
+from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from datetime import datetime
 
 router = APIRouter(
     prefix="/books",
@@ -35,10 +36,38 @@ async def add_book(
  
 @router.get("")
 async def get_books(
-    service: FromDishka[BookService]
-) -> ApiResponseSchema[list[BooksDto]]:
+    service: FromDishka[BookService],
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+    book_id: Annotated[int | None, Query(ge=1)] = None,
+    title: str | None = None,
+    created_from: datetime | None = None,
+    created_to: datetime | None = None,
+    updated_from: datetime | None = None,
+    updated_to: datetime | None = None,
+    is_deleted: bool | None = None,
+    include_deleted: bool = False,
+    sort_by: BookListSortBy = "id",
+    sort_order: SortOrder = "asc",
+) -> ApiResponseSchema[PaginatedDro[BooksDto]]:
+    filters = BookListFilters(
+        id=book_id,
+        title=title,
+        created_from=created_from,
+        created_to=created_to,
+        updated_from=updated_from,
+        updated_to=updated_to,
+        is_deleted=is_deleted,
+        include_deleted=include_deleted,
+    )
     
-    result = await service.get_books()
+    result = await service.get_books(
+        page=page,
+        page_size=page_size,
+        filters=filters,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
 
     return success(data=result, message="Books retrieved successfully")
 
