@@ -5,7 +5,7 @@ from app.application.handlers.book.service import BookService
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from app.shared.enums.user_role import UserRole
 from app.shared.dtos.auth_dto import UserDto
-from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate
+from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from app.shared.dtos.book_dto import BooksDto
@@ -83,9 +83,9 @@ async def get_book_id(
     
 
 @router.put("/{book_id}")
-async def update_book(
+async def put_update_book(
     book_id: int, 
-    book: SBooksUpdate,
+    book: SPutBookUpdate,
     service: FromDishka[BookService],
     current_user: Annotated[
         UserDto,
@@ -93,9 +93,24 @@ async def update_book(
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
-    result = await service.update_book(book_id, book, current_user=current_user)
+    result = await service.put_update_book(book_id, book, current_user=current_user)
 
-    return success(data=result, message="Book deleted successfully")
+    return success(data=result, message="Book updated successfully")
+
+@router.patch("/{book_id}")
+async def patch_update_book(
+    book_id: int,
+    book: SBooksUpdate,
+    service: FromDishka[BookService],
+    current_user: Annotated[
+        UserDto,
+        Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
+    ],
+) -> ApiResponseSchema[BooksDto]:
+
+    result = await service.patch_update_book(book_id, book, current_user=current_user)
+
+    return success(data=result, message="Book updated successfully")
 
 @router.delete("/{book_id}")
 async def delete_book(

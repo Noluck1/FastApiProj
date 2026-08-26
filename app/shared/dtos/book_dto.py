@@ -29,6 +29,10 @@ class SBooksUpdate(BaseModel):
         max_length=255,
     )
 
+class SPutBookUpdate(BaseModel):
+    title: str
+    description: str
+
 class BooksDto(BaseModel):
     id: int
     title: str

@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from sqlalchemy import select, delete, func
 from app.infrastructure.sqllitdb.models.book_model import BooksOrm
-from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SBooks, BooksDto
+from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate, BooksDto
 from app.application.exceptions import NotFoundError
 from app.application.repositories.i_book_repository import IBookRepository
 from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
@@ -104,10 +104,10 @@ class BookRepository(IBookRepository):
        
 
 
-    async def update_book(self, book_id: int, book: SBooksUpdate, updated_by_id: int) -> BooksDto:
+    async def put_update_book(self, book_id: int, book: SPutBookUpdate, updated_by_id: int) -> BooksDto:
         book_model = await self._get_model_by_id(book_id)
 
-        data = book.model_dump(exclude_unset=True)
+        data = book.model_dump()
 
         for key, value in data.items():
             setattr(book_model, key, value)
@@ -117,6 +117,20 @@ class BookRepository(IBookRepository):
         await self.session.flush()
 
         return BooksDto.model_validate(book_model)
+
+    async def patch_update_book(self, book_id: int, book: SBooksUpdate, updated_by_id: int) -> BooksDto:
+            book_model = await self._get_model_by_id(book_id)
+    
+            data = book.model_dump(exclude_unset=True)
+    
+            for key, value in data.items():
+                setattr(book_model, key, value)
+    
+            book_model.updated_by_id = updated_by_id
+    
+            await self.session.flush()
+    
+            return BooksDto.model_validate(book_model)
 
     async def delete_book(self, book_id: int, updated_by_id: int) -> BooksDto:
         book_model = await self._get_model_by_id(book_id)
