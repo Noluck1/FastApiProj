@@ -11,6 +11,7 @@ SortOrder = Literal["asc", "desc"]
 class BookListFilters:
     id: int | None = None
     title: str | None = None
+    title_contains: str | None = None
     created_from: datetime | None = None
     created_to: datetime | None = None
     updated_from: datetime | None = None

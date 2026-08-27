@@ -6,7 +6,8 @@ from app.infrastructure.sqllitdb.repositories.book_repository import BookReposit
 from app.application.i_unit_of_work import IUnitOfWork
 from app.infrastructure.sqllitdb.repositories.user_repository import UserRepository
 from app.infrastructure.sqllitdb.unit_of_work import UnitOfWork
-
+from app.application.repositories.i_favorite_repository import IFavoriteRepository
+from app.infrastructure.sqllitdb.repositories.favorite_repository import FavoriteRepository
 
 
 class RepositoryProvider(Provider):
@@ -26,6 +27,13 @@ class RepositoryProvider(Provider):
         session: AsyncSession,
     ) -> IBookRepository:
         return BookRepository(session)
+
+    @provide
+    def favorite_repository(
+        self,
+        session: AsyncSession,
+    ) -> IFavoriteRepository:
+        return FavoriteRepository(session)
 
     @provide
     def unit_of_work(

@@ -1,5 +1,5 @@
 from typing import Annotated
-from app.shared.dtos.pagination_dto import PaginatedDro
+from app.shared.dtos.pagination_dto import PaginatedDto
 from fastapi import APIRouter, Depends, Query
 from app.application.handlers.book.service import BookService
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
@@ -41,6 +41,7 @@ async def get_books(
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
     book_id: Annotated[int | None, Query(ge=1)] = None,
     title: str | None = None,
+    title_contains: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
     updated_from: datetime | None = None,
@@ -49,10 +50,11 @@ async def get_books(
     include_deleted: bool = False,
     sort_by: BookListSortBy = "id",
     sort_order: SortOrder = "asc",
-) -> ApiResponseSchema[PaginatedDro[BooksDto]]:
+) -> ApiResponseSchema[PaginatedDto[BooksDto]]:
     filters = BookListFilters(
         id=book_id,
         title=title,
+        title_contains=title_contains,
         created_from=created_from,
         created_to=created_to,
         updated_from=updated_from,

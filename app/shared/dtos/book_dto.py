@@ -1,6 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
-from typing import Self
 
 class SBookId(BaseModel):
     id: int

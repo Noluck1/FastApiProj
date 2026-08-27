@@ -16,11 +16,13 @@ from fastapi.encoders import jsonable_encoder
 from app.api.routers.auth import router as auth_router
 from app.shared.config.settings import settings
 from app.api.routers.book import router as book_router
-from app.application.exceptions import NotFoundError
+from app.api.routers.favorite import router as favorite_router
+from app.application.exceptions import NotFoundError, FavoriteNotFoundError
 from app.api.dependency_injection.container import build_container
 from collections.abc import AsyncIterator
 from app.shared.config.logging_config import configure_logging
 from app.shared.responses.api_response import error
+
 
 configure_logging(settings.log_level)
 
@@ -53,6 +55,7 @@ setup_dishka(
 )
 app.include_router(auth_router)
 app.include_router(book_router)
+app.include_router(favorite_router)
 
 
 @app.exception_handler(NotFoundError)
@@ -160,6 +163,23 @@ async def not_book_owner_error(
 
     return JSONResponse(
         status_code=403,
+        content=jsonable_encoder(response)
+    )
+
+@app.exception_handler(FavoriteNotFoundError)
+async def favorite_not_found_handler(
+    _request: Request,
+    exc: FavoriteNotFoundError,
+) -> JSONResponse:
+    response = error(
+        message="Book is not in favorites",
+        data={
+            "book_id": exc.book_id,
+        },
+    )
+
+    return JSONResponse(
+        status_code=404,
         content=jsonable_encoder(response)
     )
 

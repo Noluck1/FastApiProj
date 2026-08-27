@@ -43,4 +43,10 @@ class BooksOrm(Model, SoftDeleteMixin):
         back_populates="books",
         lazy="selectin"
     )
+
+    favorite_entries: Mapped[list["FavoriteBookOrm"]] = relationship(
+            back_populates="book",
+            cascade="all, delete-orphan",
+            lazy="selectin",
+        )
     

@@ -1,5 +1,5 @@
 import logging
-from app.shared.dtos.pagination_dto import PaginatedDro
+from app.shared.dtos.pagination_dto import PaginatedDto
 from app.shared.dtos.book_dto import SBooksUpdate, SBooksAdd, SPutBookUpdate
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.repositories.i_book_repository import IBookRepository
@@ -50,7 +50,7 @@ class BookService:
         filters:BookListFilters,
         sort_by: BookListSortBy,
         sort_order: SortOrder,
-    ) -> PaginatedDro[BooksDto]:
+    ) -> PaginatedDto[BooksDto]:
         
         async with self._uow:
             books, total = await self._repository.get_books(
@@ -64,7 +64,7 @@ class BookService:
         total_pages = (total + page_size - 1) // page_size
 
 
-        return PaginatedDro[BooksDto](
+        return PaginatedDto[BooksDto](
             item=books,
             page=page,
             page_size=page_size,

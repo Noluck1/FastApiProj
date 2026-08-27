@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from sqlalchemy import select, delete, func
-from app.infrastructure.sqllitdb.models.book_model import BooksOrm
+from app.infrastructure.sqllitdb.models import BooksOrm
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate, BooksDto
 from app.application.exceptions import NotFoundError
 from app.application.repositories.i_book_repository import IBookRepository
@@ -39,6 +39,13 @@ class BookRepository(IBookRepository):
 
         if filters.title is not None:
             where_clauses.append(BooksOrm.title == filters.title)
+
+        if filters.title_contains is not None:
+            where_clauses.append(
+                BooksOrm.title.ilike(
+                    f"%{filters.title_contains}%"
+                )
+            )
 
         if filters.created_from is not None:
             where_clauses.append(BooksOrm.created_at >= filters.created_from)
