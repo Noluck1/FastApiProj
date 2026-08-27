@@ -115,6 +115,8 @@ class BookRepository(IBookRepository):
         book_model.updated_by_id = updated_by_id
 
         await self.session.flush()
+        await self.session.refresh(book_model)
+
 
         return BooksDto.model_validate(book_model)
 
@@ -129,6 +131,7 @@ class BookRepository(IBookRepository):
             book_model.updated_by_id = updated_by_id
     
             await self.session.flush()
+            await self.session.refresh(book_model)
     
             return BooksDto.model_validate(book_model)
 
