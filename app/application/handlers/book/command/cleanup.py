@@ -1,24 +1,23 @@
-from datetime import datetime, timezone, timedelta
+from dataclasses import dataclass
+from app.application.handlers.i_handler import IHandler
 from app.application.repositories.i_book_repository import IBookRepository
 from app.application.i_unit_of_work import IUnitOfWork
+from datetime import datetime, timedelta, timezone
 
 
-class BookCleanupService:
-    def __init__(
-        self,
-        repository: IBookRepository,
-        uow: IUnitOfWork
-    ) -> None:
+@dataclass(frozen=True)
+class BookCleanupCommand:
+    retention_days: int
+
+
+class BookCleanupHandler(IHandler[BookCleanupCommand, int]):
+    def __init__(self, repository: IBookRepository, uow: IUnitOfWork):
         self._repository = repository
         self._uow = uow
 
-
-    async def purge_expired_books(
-        self,
-        retention_days: int,
-    ) -> int:
+    async def handle(self, request: BookCleanupCommand) -> int:
         cutoff = datetime.now(timezone.utc) - timedelta(
-            days=retention_days,
+            days=request.retention_days,
         )
 
         async with self._uow:

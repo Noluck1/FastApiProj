@@ -2,9 +2,10 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.shared.config.database import  new_session
 from app.infrastructure.sqllitdb.unit_of_work import UnitOfWork
-from app.application.handlers.book.cleanup_service import BookCleanupService
 from app.infrastructure.sqllitdb.repositories.book_repository import BookRepository
 from app.shared.config.settings import settings
+from app.application.handlers.book.command.cleanup import BookCleanupCommand, BookCleanupHandler 
+
 
 logger = logging.getLogger(__name__)
 
@@ -13,13 +14,15 @@ logger = logging.getLogger(__name__)
 
 async def purge_deleted_books_job() -> None:
     async with new_session() as session:
-        service = BookCleanupService(
+        handler = BookCleanupHandler(
             repository=BookRepository(session),
             uow=UnitOfWork(session),
         )
 
-        deleted_count = await service.purge_expired_books(
-            retention_days=settings.book_cleanup_retention_days,
+        deleted_count = await handler.handle(
+            BookCleanupCommand(
+                retention_days=settings.book_cleanup_retention_days,
+            ),
         )
 
     logger.info(
