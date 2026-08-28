@@ -9,7 +9,7 @@ from app.application.i_unit_of_work import IUnitOfWork
 
 logger = logging.getLogger(__name__)
 
-@dataclass
+@dataclass(frozen=True)
 class DeleteBookCommand:
     book_id: int
     current_user: UserDto
@@ -35,6 +35,7 @@ class DeleteBookHandler(IHandler[DeleteBookCommand, BooksDto]):
             book_id=request.book_id,
             updated_by_id=request.current_user.id,
         )
+        await self._uow.commit()
 
         logger.info(
             "Book deleted: book_id=%s",

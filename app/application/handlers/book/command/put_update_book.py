@@ -1,16 +1,15 @@
 import logging
 from dataclasses import dataclass
-from app.shared.dtos.book_dto import SPutBookUpdate
+from app.shared.dtos.book_dto import SPutBookUpdate, BooksDto
 from app.shared.dtos.auth_dto import UserDto
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.handlers.i_handler import IHandler
 from app.application.repositories.i_book_repository import IBookRepository
 from app.application.repositories.i_book_access import IBookAccess
-from app.shared.dtos.book_dto import BooksDto
 
 logger = logging.getLogger(__name__)
 
-@dataclass
+@dataclass(frozen=True)
 class PutUppdateBookCommand:
     book_id: int
     book: SPutBookUpdate
@@ -41,8 +40,8 @@ class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, BooksDto]):
             )
 
             update_book = await self._repository.put_update_book(
-                reauest.book_id,
-                reauest.book,
+                book_id=reauest.book_id,
+                book=reauest.book,
                 updated_by_id=reauest.current_user.id,
             )
 

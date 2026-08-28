@@ -150,6 +150,7 @@ class BookRepository(IBookRepository):
         book_model.deleted_at = datetime.now(timezone.utc)
 
         await self.session.flush()
+        await self.session.refresh(book_model)
 
         return BooksDto.model_validate(book_model)
 
