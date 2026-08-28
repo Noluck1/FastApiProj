@@ -9,7 +9,7 @@ from typing import Annotated
 from app.auth.dependencies import get_current_user
 from app.shared.dtos.pagination_dto import PaginatedDto
 from app.shared.dtos.book_dto import BooksDto
-from app.application.queries.book_list import BookListSortBy, SortOrder, BookListFilters
+from app.shared.dtos.book_list import BookListSortBy, SortOrder, BookListFilters
 from app.application.handlers.favorite.command.add_favorite import AddFavoriteBookCommand, AddFavoriteBookHandler
 from app.application.handlers.favorite.command.delete_favorite import DeleteFavoriteBookCommand, DeleteFavoriteBookHandler
 from app.application.handlers.favorite.queries.get_favorite_books import GetFavoriteBooksQuery, GetFavoriteBooksHandle

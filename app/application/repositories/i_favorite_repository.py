@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from app.shared.dtos.favorite_dto import FavoriteDto
 from app.shared.dtos.book_dto import BooksDto
-from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 
 
 class IFavoriteRepository(ABC):

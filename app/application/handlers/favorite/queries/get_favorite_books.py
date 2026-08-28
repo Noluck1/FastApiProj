@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from app.shared.dtos.auth_dto import UserDto
-from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.application.handlers.i_handler import IHandler
 from app.shared.dtos.book_dto import BooksDto
 from app.shared.dtos.pagination_dto import PaginatedDto

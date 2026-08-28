@@ -5,7 +5,7 @@ from app.infrastructure.sqllitdb.models import BooksOrm
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate, BooksDto
 from app.application.exceptions import NotFoundError
 from app.application.repositories.i_book_repository import IBookRepository
-from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.shared.dtos.auth_dto import UserDto
 from app.shared.enums.user_role import UserRole
 from app.auth.auth_exceptions import BookAccessDeniedError

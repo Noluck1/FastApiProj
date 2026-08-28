@@ -10,7 +10,7 @@ from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from app.shared.dtos.book_dto import BooksDto
 from app.auth.dependencies import get_current_user, require_roles
-from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.application.handlers.book.command.create_book import CreateBookCommand, CreateBookHandler
 from app.application.handlers.book.command.delete_book import DeleteBookCommand, DeleteBookHandler
 from app.application.handlers.book.command.put_update_book import PutUppdateBookCommand, PutUppdateBookHandler

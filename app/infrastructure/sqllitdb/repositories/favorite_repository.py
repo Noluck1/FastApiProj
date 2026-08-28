@@ -7,7 +7,7 @@ from app.shared.dtos.book_dto import BooksDto
 from sqlalchemy import select, func
 from app.application.exceptions import FavoriteNotFoundError
 from app.infrastructure.sqllitdb.models import BooksOrm, FavoriteBookOrm
-from app.application.queries.book_list import BookListSortBy, BookListFilters, SortOrder
+from app.shared.dtos.book_list import BookListSortBy, BookListFilters, SortOrder
 
 
 

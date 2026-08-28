@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from app.shared.dtos.book_dto import SBooksAdd, BooksDto, SBooksUpdate, SPutBookUpdate
-from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.shared.dtos.auth_dto import UserDto
 
 class IBookRepository(ABC):
