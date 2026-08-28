@@ -5,7 +5,6 @@ from app.shared.dtos.auth_dto import UserDto
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.handlers.i_handler import IHandler
 from app.application.repositories.i_book_repository import IBookRepository
-from app.application.repositories.i_book_access import IBookAccess
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +19,10 @@ class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, BooksDto]):
     def __init__(
             self, 
             repository: IBookRepository, 
-            uow: IUnitOfWork, 
-            book_access: IBookAccess
+            uow: IUnitOfWork,
     ):
         self._repository = repository
         self._uow = uow
-        self._book_access = book_access
 
 
     async def handle(self, reauest: PutUppdateBookCommand) -> BooksDto:
@@ -34,7 +31,7 @@ class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, BooksDto]):
                 reauest.book_id
             )
 
-            self._book_access.ensure_can_manage(
+            self._repository.ensure_can_manage(
                 user=reauest.current_user,
                 book=existing_book
             )

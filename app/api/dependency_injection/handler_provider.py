@@ -1,6 +1,5 @@
 from dishka import Provider, Scope, provide
 from app.application.repositories.i_book_repository import IBookRepository
-from app.application.repositories.i_book_access import IBookAccess
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.handlers.book.command.create_book import CreateBookHandler
 from app.application.handlers.book.command.delete_book import DeleteBookHandler
@@ -24,36 +23,32 @@ class HandlerProvider(Provider):
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
-        book_access: IBookAccess
     ) -> CreateBookHandler:
-        return CreateBookHandler(repository=repository, uow=uow, book_access=book_access)
+        return CreateBookHandler(repository=repository, uow=uow)
 
     @provide
     def delete_book_handler(
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
-        book_access: IBookAccess
     ) -> DeleteBookHandler:
-        return DeleteBookHandler(reposytory=repository, uow=uow, book_access=book_access)
+        return DeleteBookHandler(reposytory=repository, uow=uow)
 
     @provide
     def put_update_book_handler(
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
-        book_access: IBookAccess,
     ) -> PutUppdateBookHandler:
-        return PutUppdateBookHandler(repository=repository, uow=uow, book_access=book_access)
+        return PutUppdateBookHandler(repository=repository, uow=uow)
 
     @provide
     def patch_uppdate_book_handler(
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
-        book_access: IBookAccess,
     ) -> PatchUpdateBookHandler:
-        return PatchUpdateBookHandler(repository=repository, uow=uow, book_access=book_access)
+        return PatchUpdateBookHandler(repository=repository, uow=uow)
 
     @provide
     def get_books_handler(

@@ -3,7 +3,6 @@ from app.application.handlers.i_handler import IHandler
 from app.shared.dtos.book_dto import BooksDto
 from app.application.repositories.i_book_repository import IBookRepository
 from app.application.i_unit_of_work import IUnitOfWork
-from app.application.repositories.i_book_access import IBookAccess
 from app.shared.dtos.book_dto import SBooksAdd
 from app.shared.dtos.auth_dto import UserDto
 import logging
@@ -17,10 +16,10 @@ class CreateBookCommand:
 
 
 class CreateBookHandler(IHandler[CreateBookCommand, BooksDto]):
-    def __init__(self, repository: IBookRepository, uow: IUnitOfWork, book_access: IBookAccess):
+    def __init__(self, repository: IBookRepository, uow: IUnitOfWork):
         self._repository = repository
         self._uow = uow
-        self._book_access = book_access
+
 
     async def handle(self, request: CreateBookCommand) -> BooksDto:
 

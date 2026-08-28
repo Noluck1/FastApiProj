@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from app.shared.dtos.book_dto import SBooksAdd, BooksDto, SBooksUpdate, SPutBookUpdate
 from app.application.queries.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.shared.dtos.auth_dto import UserDto
 
 class IBookRepository(ABC):
     @abstractmethod
@@ -40,3 +41,7 @@ class IBookRepository(ABC):
     @abstractmethod
     async def purge_deleted_before(self, cutoff: datetime) -> int:
         raise NotImplementedError
+
+    @abstractmethod
+    def ensure_can_manage(self, user: UserDto, book: BooksDto) -> None:
+            pass

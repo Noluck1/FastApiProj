@@ -4,7 +4,6 @@ from app.application.handlers.i_handler import IHandler
 from app.shared.dtos.auth_dto import UserDto
 from app.shared.dtos.book_dto import BooksDto
 from app.application.repositories.i_book_repository import IBookRepository
-from app.application.repositories.i_book_access import IBookAccess
 from app.application.i_unit_of_work import IUnitOfWork
 
 logger = logging.getLogger(__name__)
@@ -16,17 +15,16 @@ class DeleteBookCommand:
 
 
 class DeleteBookHandler(IHandler[DeleteBookCommand, BooksDto]):
-    def __init__(self, reposytory: IBookRepository, uow: IUnitOfWork, book_access: IBookAccess):
+    def __init__(self, reposytory: IBookRepository, uow: IUnitOfWork):
         self._repository = reposytory
         self._uow = uow
-        self._book_access = book_access
 
 
     async def handle(self, request: DeleteBookCommand) -> BooksDto:
         async with self._uow:
             existing_book =  await self._repository.get_book_id(request.book_id)
 
-        self._book_access.ensure_can_manage(
+        self._repository.ensure_can_manage(
             user=request.current_user,
             book=existing_book,
         )

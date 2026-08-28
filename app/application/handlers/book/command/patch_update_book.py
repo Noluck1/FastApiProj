@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 from app.application.repositories.i_book_repository import IBookRepository
-from app.application.repositories.i_book_access import IBookAccess
 from app.application.i_unit_of_work import IUnitOfWork
 from app.shared.dtos.book_dto import SBooksUpdate, BooksDto
 from app.shared.dtos.auth_dto import UserDto
@@ -17,10 +16,9 @@ class PatchUpdateBookCommand:
 
 
 class PatchUpdateBookHandler(IHandler[PatchUpdateBookCommand, BooksDto]):
-    def __init__(self, repository: IBookRepository, uow: IUnitOfWork, book_access: IBookAccess):
+    def __init__(self, repository: IBookRepository, uow: IUnitOfWork):
         self._repository = repository
         self._uow = uow
-        self._book_access = book_access
 
     async def handle(self, request: PatchUpdateBookCommand) -> BooksDto:
         async with self._uow:
@@ -28,7 +26,7 @@ class PatchUpdateBookHandler(IHandler[PatchUpdateBookCommand, BooksDto]):
                 book_id=request.book_id
             )
 
-            self._book_access.ensure_can_manage(
+            self._repository.ensure_can_manage(
                 user=request.current_user,
                 book=existing_book
             )
