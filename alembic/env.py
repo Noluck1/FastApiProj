@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from app.infrastructure.sqllitdb.models.book_model import BooksOrm
 from app.infrastructure.sqllitdb.models.user_model import UserOrm
 from app.infrastructure.sqllitdb.models.favorite_books_model import FavoriteBookOrm
+from app.infrastructure.sqllitdb.models.refresh_token_model import RefreshTokenOrm
 from app.infrastructure.sqllitdb.base import Model
 from alembic import context
 

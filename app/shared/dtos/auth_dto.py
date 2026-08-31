@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict, SecretStr
 from app.shared.enums.user_role import UserRole
 
@@ -39,3 +40,13 @@ class UserWithPasswordDto(UserDto):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
+
+
+class RefreshTokenDto(BaseModel):
+    id: int
+    user_id: int
+    token_hash: str
+    expires_at: datetime
+    revoked_at: datetime | None
+
+    model_config = ConfigDict(from_attributes=True)

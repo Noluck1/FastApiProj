@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     jwt_issuer: str = "books-api"
     jwt_audience: str = "books-api-users"
 
+    refresh_token_expire_days: int = 30
+    refresh_cookie_secure: bool = True
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

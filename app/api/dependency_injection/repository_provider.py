@@ -8,6 +8,8 @@ from app.infrastructure.sqllitdb.repositories.user_repository import UserReposit
 from app.infrastructure.sqllitdb.unit_of_work import UnitOfWork
 from app.application.repositories.i_favorite_repository import IFavoriteRepository
 from app.infrastructure.sqllitdb.repositories.favorite_repository import FavoriteRepository
+from app.auth.i_refresh_token_repository import IRefreshTokenRepository
+from app.infrastructure.sqllitdb.repositories.refresh_token_repository import RefreshTokenRepository
 
 
 class RepositoryProvider(Provider):
@@ -41,3 +43,10 @@ class RepositoryProvider(Provider):
         session: AsyncSession
     ) -> IUnitOfWork:
         return UnitOfWork(session)
+
+    @provide
+    def refresh_token_repository(
+        self,
+        session: AsyncSession,
+    ) -> IRefreshTokenRepository:
+        return RefreshTokenRepository(session)
