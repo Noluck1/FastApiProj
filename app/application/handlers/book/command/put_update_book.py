@@ -1,10 +1,11 @@
 import logging
 from dataclasses import dataclass
 from app.shared.dtos.book_dto import SPutBookUpdate, BooksDto
-from app.shared.dtos.auth_dto import UserDto
 from app.application.i_unit_of_work import IUnitOfWork
 from app.application.handlers.i_handler import IHandler
 from app.application.repositories.i_book_repository import IBookRepository
+from app.domain.auth.entities.user import User
+from app.domain.books.access.book_access import ensure_can_manage
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class PutUppdateBookCommand:
     book_id: int
     book: SPutBookUpdate
-    current_user: UserDto
+    current_user: User
 
 
 class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, BooksDto]):
@@ -25,29 +26,32 @@ class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, BooksDto]):
         self._uow = uow
 
 
-    async def handle(self, reauest: PutUppdateBookCommand) -> BooksDto:
+    async def handle(self, request: PutUppdateBookCommand) -> BooksDto:
+        user_id = request.current_user.require_id()
+
         async with self._uow:
+
             existing_book = await self._repository.get_book_id(
-                reauest.book_id
+                request.book_id
             )
 
-            self._repository.ensure_can_manage(
-                user=reauest.current_user,
+            ensure_can_manage(
+                user=request.current_user,
                 book=existing_book
             )
 
             update_book = await self._repository.put_update_book(
-                book_id=reauest.book_id,
-                book=reauest.book,
-                updated_by_id=reauest.current_user.id,
+                book_id=request.book_id,
+                book=request.book,
+                updated_by_id=user_id,
             )
 
             await self._uow.commit()
 
             logger.info(
                 "Book updated: book_id=%s changed_fields=%s",
-                reauest.book_id,
-                sorted(reauest.book.model_fields_set),
+                request.book_id,
+                sorted(request.book.model_fields_set),
             )
 
             return update_book

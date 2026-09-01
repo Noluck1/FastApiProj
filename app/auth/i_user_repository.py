@@ -1,14 +1,16 @@
 from abc import ABC, abstractmethod
 
-from app.shared.dtos.auth_dto import UserDto, UserWithPasswordDto
+from app.domain.auth.entities.user import User
+from app.domain.auth.value_objects.username import Username
+
 
 
 class IUserRepository(ABC):
     @abstractmethod
     async def get_by_username(
             self,
-            username: str
-    ) -> UserWithPasswordDto | None:
+            username: Username
+    ) -> User | None:
         raise NotImplementedError
 
 
@@ -16,14 +18,13 @@ class IUserRepository(ABC):
     async def get_by_id(
             self,
             user_id: int
-    ) -> UserDto | None:
+    ) -> User | None:
         raise NotImplementedError
 
 
     @abstractmethod
     async def add(
         self,
-        username: str,
-        password_hash: str,
-    ) -> UserDto:
+        user: User,
+    ) -> User:
         raise NotImplementedError

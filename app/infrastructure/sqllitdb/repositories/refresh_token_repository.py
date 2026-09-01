@@ -3,8 +3,9 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.i_refresh_token_repository import IRefreshTokenRepository
 from app.infrastructure.sqllitdb.models.refresh_token_model import RefreshTokenOrm
-from app.shared.dtos.auth_dto import RefreshTokenDto
-
+from app.infrastructure.sqllitdb.mappers.refresh_session_mapper import refresh_session_to_domain, refresh_session_to_orm
+from app.domain.auth.entities.refresh_session import RefreshSession
+from app.domain.auth.value_objects.refresh_token_hash import RefreshTokenHash
 
 class RefreshTokenRepository(IRefreshTokenRepository):
     def __init__(self, session: AsyncSession) -> None:
@@ -13,48 +14,43 @@ class RefreshTokenRepository(IRefreshTokenRepository):
 
     async def add(
         self,
-        user_id: int,
-        token_hash: str,
-        expires_at: datetime,
-    ) -> RefreshTokenDto:
-        token = RefreshTokenOrm(
-            user_id=user_id,
-            token_hash=token_hash,
-            expires_at=expires_at,
+        refresh_session: RefreshSession,
+    ) -> RefreshSession:
+        model = refresh_session_to_orm(
+            refresh_session
         )
 
-        self._session.add(token)
-
+        self._session.add(model)
         await self._session.flush()
 
-        return RefreshTokenDto.model_validate(token)
+        return refresh_session_to_domain(model)
 
     async def get_by_hash(
             self, 
-            token_hash: str
-    ) -> RefreshTokenDto | None:
+            token_hash: RefreshTokenHash,
+    ) -> RefreshSession | None:
         result = await self._session.execute(
             select(RefreshTokenOrm).where(
-                RefreshTokenOrm.token_hash == token_hash
+                RefreshTokenOrm.token_hash == token_hash.value
             )
         )
 
-        token = result.scalar_one_or_none()
+        model = result.scalar_one_or_none()
 
-        if token is None:
+        if model is None:
             return None
 
-        return RefreshTokenDto.model_validate(token)
+        return refresh_session_to_domain(model)
 
     async def revoke_active(
         self, 
-        token_hash: str, 
+        token_hash: RefreshTokenHash, 
         revoked_at: datetime,
     ) -> bool:
         result = await self._session.execute(
             update(RefreshTokenOrm)
             .where(
-                RefreshTokenOrm.token_hash == token_hash,
+                RefreshTokenOrm.token_hash == token_hash.value,
                 RefreshTokenOrm.revoked_at.is_(None),
                 RefreshTokenOrm.expires_at > revoked_at,
             )

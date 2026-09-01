@@ -9,8 +9,10 @@ from app.shared.dtos.auth_dto import UserDto, RegisterRequest, TokenResponse, Lo
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from app.auth.auth_exceptions import InvalidCredentialsError
-from app.shared.config.settings import settings
-from app.auth.cookie_manager import set_refresh_cookie
+from app.api.cookie_manager import set_refresh_cookie
+from app.api.mappers.auth_mapper import user_to_dto
+from app.auth.dependencies import get_current_user
+from app.domain.auth.entities.user import User
 
 
 
@@ -19,25 +21,6 @@ router = APIRouter(
     tags=["Auth"],
     route_class=DishkaRoute,
 )
-
-# def set_refresh_cookie(
-#         response: Response,
-#         refresh_token: str,
-# ) -> None:
-#     response.set_cookie(
-#         key="refresh_token",
-#         value=refresh_token,
-#         httponly=True,
-#         secure=settings.refresh_cookie_secure,
-#         samesite="lax",
-#         path="/auth",
-#         max_age=(
-#             settings.refresh_token_expire_days
-#             *24
-#             *60
-#             *60
-#         ),
-#     )
 
 @router.post(
     "/register",
@@ -54,7 +37,22 @@ async def register(
 
     result = await service.register(data)
     
-    return success(message="User registered", data=result)
+    return success(message="User registered", data=user_to_dto(result))
+
+@router.get(
+    "/me",
+    response_model=ApiResponseSchema[UserDto],
+)
+async def get_me(
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> ApiResponseSchema[UserDto]:
+    return success(
+        message="Current user received",
+        data=user_to_dto(current_user)
+    )
 
 
 @router.post(
@@ -73,7 +71,6 @@ async def login(
     result, refresh_token = await service.login(
         username=form.username, 
         password=form.password.get_secret_value(),
-
     )
 
     set_refresh_cookie(response, refresh_token)

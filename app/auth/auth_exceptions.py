@@ -5,9 +5,6 @@ class UsernameAlreadyExistsError(Exception):
 class InvalidCredentialsError(Exception):
     pass
 
-class InactiveUserError(Exception):
-    pass
-
 class ForbiddenError(Exception):
     def __init__(self, role: str):
         self.role = role
@@ -21,4 +18,3 @@ class BookAccessDeniedError(Exception):
     def __init__(self, user_id: int, book_id: int):
         self.user_id = user_id
         self.book_id = book_id
-        

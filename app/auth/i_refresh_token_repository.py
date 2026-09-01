@@ -1,28 +1,28 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from app.shared.dtos.auth_dto import RefreshTokenDto
+from app.domain.auth.value_objects.refresh_token_hash import RefreshTokenHash
+from app.domain.auth.entities.refresh_session import RefreshSession
+
 
 class IRefreshTokenRepository(ABC):
     @abstractmethod
     async def add(
         self,
-        user_id: int,
-        token_hash: str,
-        expires_at: datetime,
-    ) -> RefreshTokenDto:
+        session: RefreshSession,
+    ) -> RefreshSession:
         raise NotImplementedError
 
     @abstractmethod
     async def get_by_hash(
         self,
-        token_hash: str,
-    ) -> RefreshTokenDto | None:
+        token_hash: RefreshTokenHash,
+    ) -> RefreshSession | None:
         raise NotImplementedError
 
     @abstractmethod
     async def revoke_active(
         self,
-        token_hash: str,
+        token_hash: RefreshTokenHash,
         revoked_at: datetime,
     ) -> bool:
         raise NotImplementedError

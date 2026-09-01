@@ -1,7 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from app.shared.dtos.auth_dto import UserDto
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
 from app.shared.dtos.favorite_dto import FavoriteDto
@@ -13,7 +12,7 @@ from app.shared.dtos.book_list import BookListSortBy, SortOrder, BookListFilters
 from app.application.handlers.favorite.command.add_favorite import AddFavoriteBookCommand, AddFavoriteBookHandler
 from app.application.handlers.favorite.command.delete_favorite import DeleteFavoriteBookCommand, DeleteFavoriteBookHandler
 from app.application.handlers.favorite.queries.get_favorite_books import GetFavoriteBooksQuery, GetFavoriteBooksHandle
-
+from app.domain.auth.entities.user import User
 
 
 router = APIRouter(
@@ -29,7 +28,7 @@ async def add_favorite_book(
     book_id: int,
     handler: FromDishka[AddFavoriteBookHandler],
     current_user: Annotated[
-        UserDto,
+        User,
         Depends(get_current_user),
     ],
 ) -> ApiResponseSchema[FavoriteDto]:
@@ -40,7 +39,7 @@ async def add_favorite_book(
 @router.get("")
 async def get_favorite_books(
     current_user: Annotated[
-            UserDto,
+            User,
             Depends(get_current_user),
         ],
     handler: FromDishka[GetFavoriteBooksHandle],
@@ -86,7 +85,7 @@ async def delete_favorite_book(
     book_id: int,
     handler: FromDishka[DeleteFavoriteBookHandler],
     current_user: Annotated[
-            UserDto,
+            User,
             Depends(get_current_user),
         ],
 ) -> ApiResponseSchema[FavoriteDto]:

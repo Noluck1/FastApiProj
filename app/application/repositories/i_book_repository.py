@@ -41,7 +41,3 @@ class IBookRepository(ABC):
     @abstractmethod
     async def purge_deleted_before(self, cutoff: datetime) -> int:
         raise NotImplementedError
-
-    @abstractmethod
-    def ensure_can_manage(self, user: UserDto, book: BooksDto) -> None:
-            pass

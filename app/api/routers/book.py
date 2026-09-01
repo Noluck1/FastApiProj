@@ -3,8 +3,7 @@ from datetime import datetime
 from app.shared.dtos.pagination_dto import PaginatedDto
 from fastapi import APIRouter, Depends, Query
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from app.shared.enums.user_role import UserRole
-from app.shared.dtos.auth_dto import UserDto
+from app.domain.auth.enums.user_role import UserRole
 from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
@@ -17,6 +16,7 @@ from app.application.handlers.book.command.put_update_book import PutUppdateBook
 from app.application.handlers.book.command.patch_update_book import PatchUpdateBookCommand, PatchUpdateBookHandler
 from app.application.handlers.book.queries.get_books import GetBooksQuery, GetBooksHandler
 from app.application.handlers.book.queries.get_book_id import GetBookIdQuery, GetBookIdHandler
+from app.domain.auth.entities.user import User
 
 
 
@@ -31,7 +31,7 @@ async def add_book(
     book: SBooksAdd,
     handler: FromDishka[CreateBookHandler],
     current_user: Annotated[
-        UserDto,
+        User,
         Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
@@ -98,7 +98,7 @@ async def put_update_book(
     book: SPutBookUpdate,
     handler: FromDishka[PutUppdateBookHandler],
     current_user: Annotated[
-        UserDto,
+        User,
         Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
@@ -113,7 +113,7 @@ async def patch_update_book(
     book: SBooksUpdate,
     handler: FromDishka[PatchUpdateBookHandler],
     current_user: Annotated[
-        UserDto,
+        User,
         Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN)),
     ],
 ) -> ApiResponseSchema[BooksDto]:
@@ -127,7 +127,7 @@ async def delete_book(
     book_id: int,
     handler: FromDishka[DeleteBookHandler],
     current_user: Annotated[
-        UserDto,
+        User,
         Depends(require_roles(UserRole.ADMIN, UserRole.AUTHOR)),
     ],
 ) -> ApiResponseSchema[BooksDto]:

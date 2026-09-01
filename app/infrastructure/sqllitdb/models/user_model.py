@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.infrastructure.sqllitdb.base import Model
-from app.shared.enums.user_role import UserRole
+from app.domain.auth.enums.user_role import UserRole
 from sqlalchemy import Enum as SqlEnum, String
 
 class UserOrm(Model):

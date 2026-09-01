@@ -1,7 +1,7 @@
 import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
-
+from app.domain.auth.value_objects.refresh_token_hash import RefreshTokenHash
 
 
 class RefreshTokenService:
@@ -9,7 +9,7 @@ class RefreshTokenService:
         self._expire_days = expire_days
         
     
-    def create(self) -> tuple[str, str, datetime]:
+    def create(self) -> tuple[str, RefreshTokenHash, datetime]:
         raw_token = secrets.token_urlsafe(48)
         token_hash = self.hash(raw_token)
 
@@ -18,6 +18,8 @@ class RefreshTokenService:
         return raw_token, token_hash, expires_at 
 
     @staticmethod
-    def hash(raw_token: str) -> str:
-        return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+    def hash(raw_token: str) -> RefreshTokenHash:
+        hash_value = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+
+        return RefreshTokenHash(hash_value)
     

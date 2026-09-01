@@ -6,12 +6,12 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from app.auth.auth_exceptions import (
     ForbiddenError,
-    InactiveUserError,
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
     UnAuthorizedError,
     BookAccessDeniedError,
 )
+from app.domain.exceptions import InactiveUserError
 from fastapi.encoders import jsonable_encoder
 from app.api.routers.auth import router as auth_router
 from app.shared.config.settings import settings

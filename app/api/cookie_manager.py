@@ -1,4 +1,4 @@
-from fastapi import Response, Cookie
+from fastapi import Response
 from app.shared.config.settings import settings
 
 
