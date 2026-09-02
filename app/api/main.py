@@ -1,27 +1,21 @@
 import logging
-from app.infrastructure.scheduler import create_scheduler
-from fastapi import FastAPI, Request
+from app.books.bootstrap.scheduler import create_scheduler
+from fastapi import FastAPI
 from dishka.integrations.fastapi import setup_dishka
-from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from app.auth.auth_exceptions import (
-    ForbiddenError,
-    InvalidCredentialsError,
-    UsernameAlreadyExistsError,
-    UnAuthorizedError,
-    BookAccessDeniedError,
-)
-from app.domain.exceptions import InactiveUserError
 from fastapi.encoders import jsonable_encoder
-from app.api.routers.auth import router as auth_router
+from app.identity.api.routers.auth import router as auth_router
 from app.shared.config.settings import settings
-from app.api.routers.book import router as book_router
-from app.api.routers.favorite import router as favorite_router
-from app.application.exceptions import NotFoundError, FavoriteNotFoundError
-from app.api.dependency_injection.container import build_container
+from app.books.api.routers.book import router as book_router
+from app.favorite.api.routers.favorite import router as favorite_router
+from app.bootstrap.container import build_container
 from collections.abc import AsyncIterator
 from app.shared.config.logging_config import configure_logging
 from app.shared.responses.api_response import error
+from app.identity.api.exception_handlers import register_identity_exception_handlers
+from app.books.api.exception_handlers import register_books_exception_handlers
+from app.favorite.api.exception_handler import register_favorite_exception_handlers
+from app.api.exception_handler import register_common_exception_handlers
 
 
 configure_logging(settings.log_level)
@@ -49,6 +43,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(lifespan=lifespan)
 
+register_identity_exception_handlers(app)
+register_books_exception_handlers(app)
+register_favorite_exception_handlers(app)
+register_common_exception_handlers(app)
+
 setup_dishka(
     container=containter,
     app=app,
@@ -58,145 +57,3 @@ app.include_router(book_router)
 app.include_router(favorite_router)
 
 
-@app.exception_handler(NotFoundError)
-async def not_found_handler(
-    request: Request, 
-    exc: NotFoundError
-) -> JSONResponse:
-    logger.warning(
-        "Book not found: book_id=%s method=%s path=%s",
-        exc.id,
-        request.method,
-        request.url.path,
-    )
-
-    response = error(message=f"Book not found", data={"book_id": exc.id})
-
-    return JSONResponse(
-        status_code=404,
-        content=jsonable_encoder(response)
-    )
-
-
-@app.exception_handler(InvalidCredentialsError)
-async def invalid_credentials_handler(
-    _request: Request,
-    _exc: InvalidCredentialsError,
-) -> JSONResponse:
-
-    response = error(message="Invalid username, password or token")
-    
-    return JSONResponse(
-        status_code=401,
-        content=jsonable_encoder(response),
-        headers={"WWW-Authenticate": "Bearer"}
-    )
-
-
-@app.exception_handler(InactiveUserError)
-async def inactive_user_handler(
-    _request: Request,
-    _exc: InactiveUserError,
-) -> JSONResponse:
-
-    response = error(message="User is inactive")
-    
-    return JSONResponse(
-        status_code=403,
-        content=jsonable_encoder(response),
-    )
-
-
-@app.exception_handler(ForbiddenError)
-async def forbidden_handler(
-    _request: Request,
-    _exc: ForbiddenError,
-) -> JSONResponse:
-
-    response = error(message="Insufficient permissions", data={"role": _exc.role})
-    
-    return JSONResponse(
-        status_code=403,
-        content=jsonable_encoder(response),
-    )
-
-
-@app.exception_handler(UsernameAlreadyExistsError)
-async def username_exists_handler(
-    _request: Request,
-    exc: UsernameAlreadyExistsError,
-) -> JSONResponse:
-
-    response = error(message="Username already exists", data={"field": exc.username})
-    
-    return JSONResponse(
-        status_code=409,
-        content=jsonable_encoder(response),
-    )
-
-@app.exception_handler(UnAuthorizedError)
-async def un_authorized_error(
-    _request: Request,
-    _exc: UnAuthorizedError,
-) -> JSONResponse:
-
-    response = error(message="User is not authorized")
-
-    return JSONResponse(
-        status_code=401,
-        content=jsonable_encoder(response)
-    )
-
-@app.exception_handler(BookAccessDeniedError)
-async def not_book_owner_error(
-    _request: Request,
-    exc: BookAccessDeniedError,
-) -> JSONResponse:
-
-    response = error(
-        message="This book does not belong to the current user", 
-        data={
-            "book_id": exc.book_id,
-            "user_id": exc.user_id,
-        },
-    )
-
-    return JSONResponse(
-        status_code=403,
-        content=jsonable_encoder(response)
-    )
-
-@app.exception_handler(FavoriteNotFoundError)
-async def favorite_not_found_handler(
-    _request: Request,
-    exc: FavoriteNotFoundError,
-) -> JSONResponse:
-    response = error(
-        message="Book is not in favorites",
-        data={
-            "book_id": exc.book_id,
-        },
-    )
-
-    return JSONResponse(
-        status_code=404,
-        content=jsonable_encoder(response)
-    )
-
-@app.exception_handler(Exception)
-async def unexpected_error_handler(
-    request: Request,
-    exc: Exception,
-) -> JSONResponse:
-    logger.exception(
-        "Unhandled exception: method=%s path=%s",
-        request.method,
-        request.url.path,
-    )
-
-    response = error(message="Internal server error")
-
-    return JSONResponse(
-        status_code=500,
-        content=jsonable_encoder(response)
-    )

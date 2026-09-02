@@ -2,11 +2,11 @@ from logging.config import fileConfig
 import os
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from app.infrastructure.sqllitdb.models.book_model import BooksOrm
-from app.infrastructure.sqllitdb.models.user_model import UserOrm
-from app.infrastructure.sqllitdb.models.favorite_books_model import FavoriteBookOrm
-from app.infrastructure.sqllitdb.models.refresh_token_model import RefreshTokenOrm
-from app.infrastructure.sqllitdb.base import Model
+from app.books.infrastructure.persistence.models.book_model import BooksOrm
+from app.identity.infrastructure.persistence.models.user_model import UserOrm
+from app.favorite.infrastructure.persistence.models.favorite_books_model import FavoriteBookOrm
+from app.identity.infrastructure.persistence.models.refresh_token_model import RefreshTokenOrm
+from app.shared.infrastructure.persistence.sqlalchemy.base import Model
 from alembic import context
 
 # this is the Alembic Config object, which provides
