@@ -7,6 +7,7 @@ from app.shared.auth.principal import Principal
 from app.identity.api.dependencies import get_current_user
 
 
+
 async def get_current_principal(
     current_user: Annotated[
         User,

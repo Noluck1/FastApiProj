@@ -7,6 +7,8 @@ from app.books.application.handlers.books.command.put_update_book import PutUppd
 from app.books.application.handlers.books.command.patch_update_book import PatchUpdateBookHandler
 from app.books.application.handlers.books.queries.get_books import GetBooksHandler
 from app.books.application.handlers.books.queries.get_book_id import GetBookIdHandler
+from app.communication.identity.i_identity_communication import IIdentityCommunication
+from app.books.application.handlers.books.command.cleanup import BookCleanupHandler
 
 class BookHandlerProvider(Provider):
     scope = Scope.REQUEST
@@ -16,9 +18,10 @@ class BookHandlerProvider(Provider):
     def create_book_handler(
         self,
         repository: IBookRepository,
+        user_checker: IIdentityCommunication,
         uow: IUnitOfWork,
     ) -> CreateBookHandler:
-        return CreateBookHandler(repository=repository, uow=uow)
+        return CreateBookHandler(repository=repository, uow=uow, user_checker=user_checker)
 
     @provide
     def delete_book_handler(
@@ -57,3 +60,14 @@ class BookHandlerProvider(Provider):
         repository: IBookRepository,
     ) -> GetBookIdHandler:
         return GetBookIdHandler(repository=repository)
+
+    @provide
+    def cleanup_handler(
+        self,
+        repository: IBookRepository,
+        uow: IUnitOfWork,
+    ) -> BookCleanupHandler:
+        return BookCleanupHandler(
+            repository=repository,
+            uow=uow,
+        )

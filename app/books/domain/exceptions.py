@@ -6,3 +6,4 @@ class InvalidBookDescriptionError(Exception):
 
 class BookAlreadyDeletedError(Exception):
     pass
+

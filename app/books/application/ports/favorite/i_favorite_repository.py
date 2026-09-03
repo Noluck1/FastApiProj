@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
-from app.shared.dtos.favorite_dto import FavoriteDto
-from app.books.api.dto.book.book_dto import BooksDto
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
-
+from app.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
+from app.books.domain.entities.book_entity.book import Book
 
 class IFavoriteRepository(ABC):
 
     @abstractmethod
-    async def add_favorite_book(self, book_id: int, user_id: int) -> FavoriteDto:
+    async def add_favorite_book(self, favorite: FavoriteBook) -> FavoriteBook:
         raise NotImplementedError
 
     @abstractmethod
@@ -21,9 +20,9 @@ class IFavoriteRepository(ABC):
         sort_by: BookListSortBy,
         sort_order: SortOrder,
 
-    ) -> tuple[list[BooksDto], int]:
+    ) -> tuple[list[Book], int]:
         raise NotImplementedError
 
     @abstractmethod
-    async def delete_favorite_book(self, book_id: int, user_id: int) -> FavoriteDto:
+    async def delete_favorite_book(self, book_id: int, user_id: int) -> FavoriteBook:
         raise NotImplementedError 

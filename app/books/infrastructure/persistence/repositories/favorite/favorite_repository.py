@@ -1,15 +1,16 @@
 from app.books.application.ports.favorite.i_favorite_repository import IFavoriteRepository
 from app.books.infrastructure.persistence.models.favorite.favorite_books_model import FavoriteBookOrm
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.shared.dtos.favorite_dto import FavoriteDto
-from app.books.api.dto.book.book_dto import BooksDto
 from sqlalchemy import select, func
+from sqlalchemy.exc import IntegrityError
 from app.books.application.exceptions import FavoriteNotFoundError
 from app.books.infrastructure.persistence.models.book.book_model import BooksOrm
 from app.shared.dtos.book_list import BookListSortBy, BookListFilters, SortOrder
-
-
-
+from app.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
+from app.books.infrastructure.persistence.mappers.favorite.favorite_mapper import favorite_to_domain, favorite_to_orm
+from app.books.domain.entities.book_entity.book import Book
+from app.books.infrastructure.persistence.mappers.book.book_mapper import book_to_domain
+from app.books.application.exceptions import FavoriteAlreadyExistsError
 
 class FavoriteRepository(IFavoriteRepository):
     def __init__(self, session: AsyncSession) -> None:
@@ -18,17 +19,29 @@ class FavoriteRepository(IFavoriteRepository):
 
     async def add_favorite_book(
         self, 
-        book_id: int, 
-        user_id: int,
-    ) -> FavoriteDto:
-        new_favorite = FavoriteBookOrm(
-            user_id=user_id,
-            book_id=book_id,
-        )
-        self.session.add(new_favorite)
-        await self.session.flush()
+        favorite: FavoriteBook
+    ) -> FavoriteBook:
+        model = favorite_to_orm(favorite)
+        self.session.add(model)
 
-        return FavoriteDto.model_validate(new_favorite)
+        try:
+            await self.session.flush()
+        except IntegrityError as exc:
+            message = str(exc.orig)
+
+            if(
+                "UNIQUE constraint failed: "
+                "favorite_book.user_id, favorite_book.book_id"
+                not in message
+            ):
+                raise
+
+            raise FavoriteAlreadyExistsError(
+                user_id=favorite.user_id,
+                book_id=favorite.book_id,
+            ) from exc
+
+        return favorite_to_domain(model)
 
     async def get_favorite_book(
         self,
@@ -39,7 +52,7 @@ class FavoriteRepository(IFavoriteRepository):
         filters: BookListFilters,
         sort_by: BookListSortBy,
         sort_order: SortOrder,
-    ) -> tuple[list[BooksDto], int]:
+    ) -> tuple[list[Book], int]:
         where_clauses = [
             FavoriteBookOrm.user_id == user_id,
             BooksOrm.is_deleted.is_(False)
@@ -105,13 +118,13 @@ class FavoriteRepository(IFavoriteRepository):
 
         books = result.all()
         
-        return [BooksDto.model_validate(book) for book in books], total,
+        return [book_to_domain(book) for book in books], total,
 
     async def delete_favorite_book(
         self,
         book_id: int,
         user_id: int,
-    ) -> FavoriteDto:
+    ) -> FavoriteBook:
 
         favorite = await self.session.get(
             FavoriteBookOrm, 
@@ -127,7 +140,7 @@ class FavoriteRepository(IFavoriteRepository):
                 book_id=book_id,
             )
 
-        deleted_favorite = FavoriteDto.model_validate(favorite)
+        deleted_favorite = favorite_to_domain(favorite)
 
         await self.session.delete(favorite)
         await self.session.flush()

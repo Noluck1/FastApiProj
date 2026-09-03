@@ -21,13 +21,13 @@ configure_logging(settings.log_level)
 
 logger = logging.getLogger(__name__)
 
-containter = build_container()
+container = build_container()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Application startup started")
 
-    scheduler = create_scheduler()
+    scheduler = create_scheduler(container)
     scheduler.start()
 
     try:
@@ -47,7 +47,7 @@ register_books_exception_handlers(app)
 register_common_exception_handlers(app)
 
 setup_dishka(
-    container=containter,
+    container=container,
     app=app,
 )
 app.include_router(auth_router)

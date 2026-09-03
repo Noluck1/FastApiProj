@@ -5,6 +5,8 @@ from app.books.application.handlers.favorite.command.add_favorite import AddFavo
 from app.books.application.handlers.favorite.command.delete_favorite import DeleteFavoriteBookHandler
 from app.books.application.handlers.favorite.queries.get_favorite_books import GetFavoriteBooksHandle
 from app.books.application.ports.favorite.i_favorite_repository import IFavoriteRepository
+from app.communication.identity.i_identity_communication import IIdentityCommunication
+
 
 class FavoriteHandlerProvider(Provider):
     scope = Scope.REQUEST
@@ -14,9 +16,10 @@ class FavoriteHandlerProvider(Provider):
         self,
         repository: IFavoriteRepository,
         book_repository: IBookRepository,
+        user_checker: IIdentityCommunication,
         uow: IUnitOfWork,
     ) -> AddFavoriteBookHandler:
-        return AddFavoriteBookHandler(repository=repository, book_repository=book_repository, uow=uow)
+        return AddFavoriteBookHandler(repository=repository, book_repository=book_repository, uow=uow, user_checker=user_checker)
 
     @provide
     def delete_favorite_book_handler(

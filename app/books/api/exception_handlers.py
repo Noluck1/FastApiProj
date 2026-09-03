@@ -3,10 +3,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from app.shared.responses.api_response import error
-from app.books.application.exceptions import NotFoundError, BookAccessDeniedError, FavoriteNotFoundError
+from app.books.application.exceptions import NotFoundError, BookAccessDeniedError, FavoriteNotFoundError, FavoriteAlreadyExistsError, ReferencedUserNotFoundError
 from app.books.domain.exceptions import InvalidBookTitleError, InvalidBookDescriptionError, BookAlreadyDeletedError
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +34,14 @@ def register_books_exception_handlers(
     app.add_exception_handler(
         BookAlreadyDeletedError,
         book_already_deleted_error,
+    )
+    app.add_exception_handler(
+        FavoriteAlreadyExistsError,
+        favorite_already_exists_handler,
+    )
+    app.add_exception_handler(
+        ReferencedUserNotFoundError,
+        referenced_user_not_found_handler,
     )
 
 
@@ -135,4 +141,35 @@ async def book_already_deleted_error(
     return JSONResponse(
         status_code=409,
         content=jsonable_encoder(response)
+    )
+
+async def favorite_already_exists_handler(
+    _request: Request,
+    exc: FavoriteAlreadyExistsError,
+) -> JSONResponse:
+    response = error(
+        message="Book is already in favorites",
+        data={
+            "user_id": exc.user_id,
+            "book_id": exc.book_id,
+        },
+    )
+
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content=jsonable_encoder(response),
+    )
+
+async def referenced_user_not_found_handler(
+    _request: Request,
+    exc: ReferencedUserNotFoundError,
+) -> JSONResponse:
+    response = error(
+        message="Referenced user not found",
+        data={"user_id": exc.user_id},
+    )
+
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content=jsonable_encoder(response),
     )

@@ -14,7 +14,7 @@ from app.books.application.handlers.favorite.command.delete_favorite import Dele
 from app.books.application.handlers.favorite.queries.get_favorite_books import GetFavoriteBooksQuery, GetFavoriteBooksHandle
 from app.shared.auth.principal import Principal
 from app.api.security.dependencies import get_current_principal
-
+from app.books.infrastructure.persistence.mappers.favorite.favorite_mapper import favorite_to_dto
 
 router = APIRouter(
     prefix="/favorite",
@@ -35,7 +35,7 @@ async def add_favorite_book(
 ) -> ApiResponseSchema[FavoriteDto]:
     result = await handler.handle(AddFavoriteBookCommand(book_id, user_id=principal.subject_id))
 
-    return success(data=result, message="Book add favorite")
+    return success(data=favorite_to_dto(result), message="Book add favorite")
 
 @router.get("")
 async def get_favorite_books(
@@ -92,4 +92,4 @@ async def delete_favorite_book(
 ) -> ApiResponseSchema[FavoriteDto]:
     result = await handler.handle(DeleteFavoriteBookCommand(book_id, user_id=principal.subject_id))
 
-    return success(data=result, message="Book removed from favorites")
+    return success(data=favorite_to_dto(result), message="Book removed from favorites")

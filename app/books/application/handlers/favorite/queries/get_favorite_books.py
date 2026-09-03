@@ -4,6 +4,7 @@ from app.shared.application.port.i_handler import IHandler
 from app.books.api.dto.book.book_dto import BooksDto
 from app.shared.dtos.pagination_dto import PaginatedDto
 from app.books.application.ports.favorite.i_favorite_repository import IFavoriteRepository
+from app.books.domain.entities.book_entity.book import Book
 
 @dataclass(frozen=True)
 class GetFavoriteBooksQuery:
@@ -20,7 +21,7 @@ class GetFavoriteBooksHandle(IHandler[GetFavoriteBooksQuery, PaginatedDto[BooksD
         self._repository = repository
 
 
-    async def handle(self, request: GetFavoriteBooksQuery) -> PaginatedDto[BooksDto]:
+    async def handle(self, request: GetFavoriteBooksQuery) -> PaginatedDto[Book]:
         books, total = (
             await self._repository.get_favorite_book(
                 user_id=request.user_id,
@@ -34,7 +35,7 @@ class GetFavoriteBooksHandle(IHandler[GetFavoriteBooksQuery, PaginatedDto[BooksD
 
         total_pages = (total + request.page_size - 1) // request.page_size
 
-        return PaginatedDto[BooksDto](
+        return PaginatedDto[Book](
             item=books,
             page=request.page,
             page_size=request.page_size,
