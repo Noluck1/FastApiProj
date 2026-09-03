@@ -2,9 +2,9 @@ from logging.config import fileConfig
 import os
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from app.books.infrastructure.persistence.models.book_model import BooksOrm
+from app.books.infrastructure.persistence.models.book.book_model import BooksOrm
 from app.identity.infrastructure.persistence.models.user_model import UserOrm
-from app.favorite.infrastructure.persistence.models.favorite_books_model import FavoriteBookOrm
+from app.books.infrastructure.persistence.models.favorite.favorite_books_model import FavoriteBookOrm
 from app.identity.infrastructure.persistence.models.refresh_token_model import RefreshTokenOrm
 from app.shared.infrastructure.persistence.sqlalchemy.base import Model
 from alembic import context

@@ -1,7 +1,7 @@
-from app.books.api.dto.book_dto import BooksDto
+from app.books.api.dto.book.book_dto import BooksDto
 from app.books.application.exceptions import BookAccessDeniedError
 from app.books.domain.access.book_access_subject import BookAccessSubject
-from app.books.domain.entities.book import Book
+from app.books.domain.entities.book_entity.book import Book
 
 def ensure_can_manage(author: BookAccessSubject, book: Book) -> None:
 

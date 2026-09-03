@@ -2,9 +2,9 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.shared.infrastructure.persistence.sqlalchemy.database import  new_session
 from app.shared.infrastructure.persistence.sqlalchemy.unit_of_work import UnitOfWork
-from app.books.infrastructure.persistence.repositories.book_repository import BookRepository
+from app.books.infrastructure.persistence.repositories.book.book_repository import BookRepository
 from app.shared.config.settings import settings
-from app.books.application.handlers.command.cleanup import BookCleanupCommand, BookCleanupHandler 
+from app.books.application.handlers.books.command.cleanup import BookCleanupCommand, BookCleanupHandler 
 
 
 logger = logging.getLogger(__name__)

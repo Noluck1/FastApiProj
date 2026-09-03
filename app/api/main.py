@@ -6,15 +6,14 @@ from contextlib import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 from app.identity.api.routers.auth import router as auth_router
 from app.shared.config.settings import settings
-from app.books.api.routers.book import router as book_router
-from app.favorite.api.routers.favorite import router as favorite_router
-from app.bootstrap.container import build_container
+from app.books.api.routers.book.book import router as book_router
+from app.books.api.routers.favorite.favorite import router as favorite_router
+from app.api.dependency_injection.container import build_container
 from collections.abc import AsyncIterator
 from app.shared.config.logging_config import configure_logging
 from app.shared.responses.api_response import error
 from app.identity.api.exception_handlers import register_identity_exception_handlers
 from app.books.api.exception_handlers import register_books_exception_handlers
-from app.favorite.api.exception_handler import register_favorite_exception_handlers
 from app.api.exception_handler import register_common_exception_handlers
 
 
@@ -45,7 +44,6 @@ app = FastAPI(lifespan=lifespan)
 
 register_identity_exception_handlers(app)
 register_books_exception_handlers(app)
-register_favorite_exception_handlers(app)
 register_common_exception_handlers(app)
 
 setup_dishka(
