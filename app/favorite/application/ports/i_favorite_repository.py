@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from app.shared.dtos.favorite_dto import FavoriteDto
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 
 

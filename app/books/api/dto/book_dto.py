@@ -44,3 +44,4 @@ class BooksDto(BaseModel):
     deleted_at: datetime | None
 
     model_config = ConfigDict(from_attributes=True)
+

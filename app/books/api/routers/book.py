@@ -3,10 +3,10 @@ from datetime import datetime
 from app.shared.dtos.pagination_dto import PaginatedDto
 from fastapi import APIRouter, Depends, Query
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate
+from app.books.api.dto.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate
 from app.shared.responses.api_response import success
 from app.shared.responses.api_response_schema import ApiResponseSchema
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.books.application.handlers.command.create_book import CreateBookCommand, CreateBookHandler
 from app.books.application.handlers.command.delete_book import DeleteBookCommand, DeleteBookHandler
@@ -17,6 +17,7 @@ from app.books.application.handlers.queries.get_book_id import GetBookIdQuery, G
 from app.shared.auth.principal import Principal
 from app.api.security.dependencies import require_roles
 from app.books.domain.access.book_access_subject import BookAccessSubject
+from app.books.infrastructure.persistence.mappers.book_mapper import book_to_dto
 
 
 router = APIRouter(
@@ -35,9 +36,15 @@ async def add_book(
     ],
 ) -> ApiResponseSchema[BooksDto]:
     
-    result = await handler.handle(CreateBookCommand(book, author_id=principal.subject_id))
+    result = await handler.handle(
+        CreateBookCommand(
+            title=book.title,
+            description=book.description, 
+            author_id=principal.subject_id
+        )
+    )
 
-    return success(data=result, message="Book created successfully")
+    return success(data=book_to_dto(result), message="Book created successfully")
 
  
 @router.get("")
@@ -78,7 +85,15 @@ async def get_books(
         ),
     )
 
-    return success(data=result, message="Books retrieved successfully")
+    response = PaginatedDto[BooksDto](
+        item=[book_to_dto(book) for book in result.item],
+        page=result.page,
+        page_size=result.page_size,
+        total=result.total,
+        total_pages=result.total_pages,
+    )
+
+    return success(data=response, message="Books retrieved successfully")
 
 @router.get("/{book_id}")
 async def get_book_id(
@@ -88,7 +103,7 @@ async def get_book_id(
     
     result = await handler.handle(GetBookIdQuery(book_id))
 
-    return success(data=result, message="Book retrieved successfully")
+    return success(data=book_to_dto(result), message="Book retrieved successfully")
     
 
 @router.put("/{book_id}")
@@ -107,9 +122,16 @@ async def put_update_book(
                 roles=principal.roles,
             )
     
-    result = await handler.handle(PutUppdateBookCommand(book_id, book, author=author))
+    result = await handler.handle(
+        PutUppdateBookCommand(
+            book_id, 
+            title=book.title,
+            description=book.description, 
+            author=author,
+        )
+    )
 
-    return success(data=result, message="Book updated successfully")
+    return success(data=book_to_dto(result), message="Book updated successfully")
 
 @router.patch("/{book_id}")
 async def patch_update_book(
@@ -127,9 +149,17 @@ async def patch_update_book(
             roles=principal.roles,
         )
 
-    result = await handler.handle(PatchUpdateBookCommand(book_id, book, author=author))
+    result = await handler.handle(
+        PatchUpdateBookCommand(
+            book_id=book_id, 
+            title=book.title,
+            description=book.description,
+            changed_fields=frozenset(book.model_fields_set),
+            author=author,
+        )
+    )
 
-    return success(data=result, message="Book updated successfully")
+    return success(data=book_to_dto(result), message="Book updated successfully")
 
 @router.delete("/{book_id}")
 async def delete_book(
@@ -148,4 +178,4 @@ async def delete_book(
     
     result = await handler.handle(DeleteBookCommand(book_id, author=author))
 
-    return success(data=result, message="Book deleted successfully")
+    return success(data=book_to_dto(result), message="Book deleted successfully")

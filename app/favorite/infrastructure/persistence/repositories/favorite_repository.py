@@ -2,7 +2,7 @@ from app.favorite.application.ports.i_favorite_repository import IFavoriteReposi
 from app.favorite.infrastructure.persistence.models.favorite_books_model import FavoriteBookOrm
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.shared.dtos.favorite_dto import FavoriteDto
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from sqlalchemy import select, func
 from app.favorite.application.exceptions import FavoriteNotFoundError
 from app.books.infrastructure.persistence.models.book_model import BooksOrm

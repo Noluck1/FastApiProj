@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.shared.application.port.i_handler import IHandler
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.shared.dtos.pagination_dto import PaginatedDto
 from app.favorite.application.ports.i_favorite_repository import IFavoriteRepository
 

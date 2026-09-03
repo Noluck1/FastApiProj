@@ -2,26 +2,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from sqlalchemy import select, delete, func
 from app.books.infrastructure.persistence.models.book_model import BooksOrm
-from app.shared.dtos.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate, BooksDto
+from app.books.api.dto.book_dto import SBooksAdd, SBooksUpdate, SPutBookUpdate, BooksDto
 from app.books.application.exceptions import NotFoundError
 from app.books.application.ports.i_book_repository import IBookRepository
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app.books.domain.entities.book import Book
+from app.books.infrastructure.persistence.mappers.book_mapper import book_to_domain, book_to_orm, apply_book_to_orm
+
 
 class BookRepository(IBookRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def add_book(self, book: SBooksAdd, author_id: int,) -> BooksDto:
-        new_book = BooksOrm(
-            title=book.title,
-            description=book.description,
-            author_id=author_id,
-        )
+    async def add_book(self, book: Book) -> Book:
 
-        self.session.add(new_book)
+        if book.id is not None:
+            raise ValueError("New book must not have an id")
+
+        model = book_to_orm(book)
+        
+        self.session.add(model)
+
         await self.session.flush()
+        await self.session.refresh(model)
 
-        return BooksDto.model_validate(new_book)
+        return book_to_domain(model)
 
 
     async def get_books(
@@ -31,7 +36,7 @@ class BookRepository(IBookRepository):
             filters: BookListFilters,
             sort_by: BookListSortBy,
             sort_order: SortOrder,
-    ) -> tuple[list[BooksDto], int]:
+    ) -> tuple[list[Book], int]:
         where_clauses = []
 
         if filters.id is not None:
@@ -86,7 +91,7 @@ class BookRepository(IBookRepository):
 
         books = book_result.scalars().all()
 
-        return ([BooksDto.model_validate(book) for book in books], total)
+        return ([book_to_domain(book) for book in books], int(total or 0))
 
 
     async def _get_model_by_id(self, book_id: int) -> BooksOrm:
@@ -105,54 +110,10 @@ class BookRepository(IBookRepository):
 
 
 
-    async def get_book_id(self, book_id: int) -> BooksDto:
+    async def get_book_id(self, book_id: int) -> Book:
         book_model = await self._get_model_by_id(book_id)
-        return BooksDto.model_validate(book_model)
+        return book_to_domain(book_model)
        
-
-
-    async def put_update_book(self, book_id: int, book: SPutBookUpdate, updated_by_id: int) -> BooksDto:
-        book_model = await self._get_model_by_id(book_id)
-
-        data = book.model_dump()
-
-        for key, value in data.items():
-            setattr(book_model, key, value)
-
-        book_model.updated_by_id = updated_by_id
-
-        await self.session.flush()
-        await self.session.refresh(book_model)
-
-
-        return BooksDto.model_validate(book_model)
-
-    async def patch_update_book(self, book_id: int, book: SBooksUpdate, updated_by_id: int) -> BooksDto:
-            book_model = await self._get_model_by_id(book_id)
-    
-            data = book.model_dump(exclude_unset=True)
-    
-            for key, value in data.items():
-                setattr(book_model, key, value)
-    
-            book_model.updated_by_id = updated_by_id
-    
-            await self.session.flush()
-            await self.session.refresh(book_model)
-    
-            return BooksDto.model_validate(book_model)
-
-    async def delete_book(self, book_id: int, updated_by_id: int) -> BooksDto:
-        book_model = await self._get_model_by_id(book_id)
-
-        book_model.updated_by_id = updated_by_id
-        book_model.is_deleted = True
-        book_model.deleted_at = datetime.now(timezone.utc)
-
-        await self.session.flush()
-        await self.session.refresh(book_model)
-
-        return BooksDto.model_validate(book_model)
 
     async def purge_deleted_before(self, cutoff: datetime) -> int:
         statement = delete(BooksOrm).where(
@@ -166,3 +127,18 @@ class BookRepository(IBookRepository):
         await self.session.flush()
 
         return result.rowcount or 0
+
+    async def save(self, book: Book) -> Book:
+        book_id = book.require_id()
+
+        model = await self.session.get(BooksOrm, book_id)
+
+        if model is None:
+            raise NotFoundError(id=book_id)
+
+        apply_book_to_orm(book, model)
+
+        await self.session.flush()
+        await self.session.refresh(model)
+
+        return book_to_domain(model)

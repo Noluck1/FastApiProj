@@ -1,11 +1,14 @@
 import logging
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from app.shared.application.port.i_handler import IHandler
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.books.application.ports.i_book_repository import IBookRepository
 from app.shared.application.port.i_unit_of_work import IUnitOfWork
 from app.books.domain.access.book_access_subject import BookAccessSubject
 from app.books.domain.access.book_access import ensure_can_manage
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +27,20 @@ class DeleteBookHandler(IHandler[DeleteBookCommand, BooksDto]):
     async def handle(self, request: DeleteBookCommand) -> BooksDto:
         async with self._uow:
 
-            existing_book =  await self._repository.get_book_id(request.book_id)
+            book =  await self._repository.get_book_id(request.book_id)
 
             ensure_can_manage(
                 author=request.author,
-                book=existing_book,
+                book=book,
             )
 
-            deleted_book_id = await self._repository.delete_book(
-                book_id=request.book_id,
+            book.delete(
                 updated_by_id=request.author.user_id,
+                deleted_at=datetime.now(timezone.utc),
             )
+
+            saved_book = await self._repository.save(book)
+
             await self._uow.commit()
 
         logger.info(
@@ -42,6 +48,6 @@ class DeleteBookHandler(IHandler[DeleteBookCommand, BooksDto]):
             request.book_id,
         )
 
-        return deleted_book_id
+        return saved_book
         
         

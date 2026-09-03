@@ -1,8 +1,9 @@
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.books.application.exceptions import BookAccessDeniedError
 from app.books.domain.access.book_access_subject import BookAccessSubject
+from app.books.domain.entities.book import Book
 
-def ensure_can_manage(author: BookAccessSubject, book: BooksDto) -> None:
+def ensure_can_manage(author: BookAccessSubject, book: Book) -> None:
 
     is_admin = author.has_role("admin")
 

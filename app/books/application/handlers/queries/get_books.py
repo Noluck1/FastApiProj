@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from app.shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
 from app.shared.application.port.i_handler import IHandler
-from app.shared.dtos.book_dto import BooksDto
 from app.shared.dtos.pagination_dto import PaginatedDto
 from app.books.application.ports.i_book_repository import IBookRepository
-
+from app.books.domain.entities.book import Book
 
 
 @dataclass(frozen=True)
@@ -16,12 +15,12 @@ class GetBooksQuery:
     sort_order: SortOrder
 
 
-class GetBooksHandler(IHandler[GetBooksQuery, PaginatedDto[BooksDto]]):
+class GetBooksHandler(IHandler[GetBooksQuery, PaginatedDto[Book]]):
     def __init__(self, repository: IBookRepository):
         self._repository = repository
 
 
-    async def handle(self, request: GetBooksQuery) -> PaginatedDto[BooksDto]:
+    async def handle(self, request: GetBooksQuery) -> PaginatedDto[Book]:
         books, total = await self._repository.get_books(
             page=request.page,
             page_size=request.page_size,
@@ -32,7 +31,7 @@ class GetBooksHandler(IHandler[GetBooksQuery, PaginatedDto[BooksDto]]):
 
         total_pages = (total + request.page_size - 1) // request.page_size
 
-        return PaginatedDto[BooksDto](
+        return PaginatedDto[Book](
             item=books,
             page=request.page,
             page_size=request.page_size,

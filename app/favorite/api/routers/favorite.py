@@ -7,7 +7,7 @@ from app.shared.dtos.favorite_dto import FavoriteDto
 from typing import Annotated
 from app.api.security.dependencies import get_current_user
 from app.shared.dtos.pagination_dto import PaginatedDto
-from app.shared.dtos.book_dto import BooksDto
+from app.books.api.dto.book_dto import BooksDto
 from app.shared.dtos.book_list import BookListSortBy, SortOrder, BookListFilters
 from app.favorite.application.handlers.command.add_favorite import AddFavoriteBookCommand, AddFavoriteBookHandler
 from app.favorite.application.handlers.command.delete_favorite import DeleteFavoriteBookCommand, DeleteFavoriteBookHandler
