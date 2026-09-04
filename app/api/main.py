@@ -15,6 +15,9 @@ from app.shared.responses.api_response import error
 from app.identity.api.exception_handlers import register_identity_exception_handlers
 from app.books.api.exception_handlers import register_books_exception_handlers
 from app.api.exception_handler import register_common_exception_handlers
+from app.books.api.setup import register_books_api
+from app.identity.api.setup import register_identity_api
+
 
 
 configure_logging(settings.log_level)
@@ -40,18 +43,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Application shotdown completed")
 
 
-app = FastAPI(lifespan=lifespan)
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
 
-register_identity_exception_handlers(app)
-register_books_exception_handlers(app)
-register_common_exception_handlers(app)
+    setup_dishka(
+        container=container,
+        app=app,
+    )
+    register_common_exception_handlers(app)
+    register_identity_api(app)
+    register_books_api(app)
+    
 
-setup_dishka(
-    container=container,
-    app=app,
-)
-app.include_router(auth_router)
-app.include_router(book_router)
-app.include_router(favorite_router)
 
+app = create_app()
 

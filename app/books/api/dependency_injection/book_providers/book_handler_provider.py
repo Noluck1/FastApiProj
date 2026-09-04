@@ -28,6 +28,7 @@ class BookHandlerProvider(Provider):
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
+        user_checker: IIdentityCommunication,
     ) -> DeleteBookHandler:
         return DeleteBookHandler(reposytory=repository, uow=uow)
 
@@ -36,6 +37,7 @@ class BookHandlerProvider(Provider):
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
+        user_checker: IIdentityCommunication,
     ) -> PutUppdateBookHandler:
         return PutUppdateBookHandler(repository=repository, uow=uow)
 
@@ -44,6 +46,7 @@ class BookHandlerProvider(Provider):
         self,
         repository: IBookRepository,
         uow: IUnitOfWork,
+        user_checker: IIdentityCommunication,
     ) -> PatchUpdateBookHandler:
         return PatchUpdateBookHandler(repository=repository, uow=uow)
 

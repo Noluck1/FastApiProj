@@ -9,6 +9,9 @@ from app.books.domain.access.book_access import ensure_can_manage
 from app.books.domain.entities.book_entity.book import Book
 from app.books.domain.value_objects.book_value_object.book_title import BookTitle
 from app.books.domain.value_objects.book_value_object.book_description import BookDescription
+from app.communication.identity.i_identity_communication import IIdentityCommunication
+from app.books.application.exceptions import ReferencedUserNotFoundError
+
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +28,19 @@ class PutUppdateBookHandler(IHandler[PutUppdateBookCommand, Book]):
             self, 
             repository: IBookRepository, 
             uow: IUnitOfWork,
+            user_checker: IIdentityCommunication,
     ):
         self._repository = repository
         self._uow = uow
-
+        self._user_checker = user_checker
 
     async def handle(self, request: PutUppdateBookCommand) -> Book:
         async with self._uow:
+
+            user_exists = await self._user_checker.get_active_user(request.author.user_id)
+
+            if not user_exists:
+                raise ReferencedUserNotFoundError(user_id=request.author.user_id)
 
             book = await self._repository.get_book_id(
                 request.book_id
