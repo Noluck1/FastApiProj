@@ -1,0 +1,40 @@
+from dataclasses import dataclass
+from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from shared.application.port.i_handler import IHandler
+from shared.dtos.pagination_dto import PaginatedDto
+from app_books.books.application.ports.book.i_book_repository import IBookRepository
+from app_books.books.domain.entities.book_entity.book import Book
+
+
+@dataclass(frozen=True)
+class GetBooksQuery:
+    page: int
+    page_size: int
+    filters: BookListFilters
+    sort_by: BookListSortBy
+    sort_order: SortOrder
+
+
+class GetBooksHandler(IHandler[GetBooksQuery, PaginatedDto[Book]]):
+    def __init__(self, repository: IBookRepository):
+        self._repository = repository
+
+
+    async def handle(self, request: GetBooksQuery) -> PaginatedDto[Book]:
+        books, total = await self._repository.get_books(
+            page=request.page,
+            page_size=request.page_size,
+            filters=request.filters,
+            sort_by=request.sort_by,
+            sort_order=request.sort_order,
+        )
+
+        total_pages = (total + request.page_size - 1) // request.page_size
+
+        return PaginatedDto[Book](
+            item=books,
+            page=request.page,
+            page_size=request.page_size,
+            total=total,
+            total_pages=total_pages
+        )
