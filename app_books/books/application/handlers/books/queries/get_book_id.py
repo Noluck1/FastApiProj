@@ -1,8 +1,10 @@
+import logging
 from dataclasses import dataclass
 from shared.application.port.i_handler import IHandler
 from app_books.books.application.ports.book.i_book_repository import IBookRepository
 from app_books.books.domain.entities.book_entity.book import Book
 
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class GetBookIdQuery:
@@ -16,6 +18,11 @@ class GetBookIdHandler(IHandler[GetBookIdQuery, Book]):
 
     async def handle(self, request: GetBookIdQuery) -> Book:
         book = await self._repository.get_book_id(book_id=request.book_id)
+
+        logger.debug(
+            "Book: book_id=%s",
+            book.require_id(),
+        )
 
         return book
         

@@ -7,7 +7,7 @@ from app_books.books.application.handlers.favorite.queries.get_favorite_books im
     GetFavoriteBooksQuery,
 )
 from app_books.books.domain.entities.book_entity.book import Book
-from shared.dtos.book_list import BookListFilters
+from app_books.books.shared.dto.book_list import BookListFilters
 
 @pytest.mark.asyncio
 async def test_get_favorite_books_returns_paginated_result(

@@ -1,6 +1,6 @@
 from app_books.books.infrastructure.persistence.models.favorite.favorite_books_model import FavoriteBookOrm
 from app_books.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
-from shared.dtos.favorite_dto import FavoriteDto
+from app_books.books.shared.dto.favorite_dto import FavoriteDto
 
 def favorite_to_domain(model: FavoriteBookOrm) -> FavoriteBook:
     return FavoriteBook(

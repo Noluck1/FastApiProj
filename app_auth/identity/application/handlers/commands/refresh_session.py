@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from shared.application.port.i_handler import IHandler
@@ -9,6 +10,8 @@ from app_auth.identity.infrastructure.security.token_service import TokenService
 from app_auth.identity.infrastructure.security.refresh_token_service import RefreshTokenService
 from app_auth.identity.application.exceptions import InvalidCredentialsError
 from app_auth.identity.domain.entities.refresh_session import RefreshSession
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class RefreshSessionCommand:
@@ -85,5 +88,10 @@ class RefreshSessionHandler(IHandler[RefreshSessionCommand, tuple[TokenResponse,
             )
 
             await self._uow.commit()
+
+            logger.info(
+                "Token refreshed successfully: user_id=%s",
+                user_id,
+            )
 
             return TokenResponse(access_token=access_token), new_raw_token

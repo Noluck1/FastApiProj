@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from app_books.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
 from app_books.books.domain.entities.book_entity.book import Book
 

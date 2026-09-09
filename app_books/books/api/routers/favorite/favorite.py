@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, Query
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from shared.responses.api_response import success
 from shared.responses.api_response_schema import ApiResponseSchema
-from shared.dtos.favorite_dto import FavoriteDto
+from app_books.books.shared.dto.favorite_dto import FavoriteDto
 from typing import Annotated
 from shared.dtos.pagination_dto import PaginatedDto
 from app_books.books.api.dto.book.book_dto import BooksDto
-from shared.dtos.book_list import BookListSortBy, SortOrder, BookListFilters
+from app_books.books.shared.dto.book_list import BookListSortBy, SortOrder, BookListFilters
 from app_books.books.application.handlers.favorite.command.add_favorite import AddFavoriteBookCommand, AddFavoriteBookHandler
 from app_books.books.application.handlers.favorite.command.delete_favorite import DeleteFavoriteBookCommand, DeleteFavoriteBookHandler
 from app_books.books.application.handlers.favorite.queries.get_favorite_books import GetFavoriteBooksQuery, GetFavoriteBooksHandle

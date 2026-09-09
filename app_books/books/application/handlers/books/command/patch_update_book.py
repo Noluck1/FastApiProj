@@ -63,8 +63,11 @@ class PatchUpdateBookHandler(IHandler[PatchUpdateBookCommand, Book]):
             await self._uow.commit()
 
             logger.info(
-                "Book updated: book_id=%s changed_fields=%s",
-                request.book_id,
+                "Book updated: book_id=%s actor_id=%s "
+                "update_type=partial changed_fields=%s",
+                saved_book.require_id(),
+                request.author.user_id,
+                sorted(request.changed_fields),
             )
 
             return saved_book

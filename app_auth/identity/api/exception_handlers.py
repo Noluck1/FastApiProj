@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app_auth.identity.application.exceptions import InvalidCredentialsError, UsernameAlreadyExistsError
@@ -5,6 +6,7 @@ from app_auth.identity.domain.exceptions import InactiveUserError
 from shared.responses.api_response import error
 from fastapi.encoders import jsonable_encoder
 
+logger = logging.getLogger(__name__)
 
 def register_identity_exception_handlers(
     app: FastAPI,
@@ -27,6 +29,9 @@ async def username_exists_handler(
     _request: Request,
     exc: UsernameAlreadyExistsError,
 ) -> JSONResponse:
+    logger.info(
+        "Registration rejected: reason=username_exists"
+    )
 
     response = error(message="Username already exists", data={"field": exc.username})
     
@@ -36,9 +41,15 @@ async def username_exists_handler(
     )
 
 async def invalid_credentials_handler(
-    _request: Request,
+    request: Request,
     _exc: InvalidCredentialsError,
 ) -> JSONResponse:
+    logger.warning(
+        "Authentication rejected: method=%s path=%s "
+        "reason=invalid_credentials",
+        request.method,
+        request.url.path,
+    )
 
     response = error(message="Invalid username, password or token")
     
@@ -49,9 +60,15 @@ async def invalid_credentials_handler(
     )
 
 async def inactive_user_handler(
-    _request: Request,
+    request: Request,
     _exc: InactiveUserError,
 ) -> JSONResponse:
+    logger.warning(
+        "Authentication rejected: method=%s path=%s "
+        "reason=inactive_user",
+        request.method,
+        request.url.path,
+    )
 
     response = error(message="User is inactive")
     

@@ -4,7 +4,7 @@ from sqlalchemy import select, delete, func
 from app_books.books.infrastructure.persistence.models.book.book_model import BooksOrm
 from app_books.books.application.exceptions import NotFoundError
 from app_books.books.application.ports.book.i_book_repository import IBookRepository
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from app_books.books.domain.entities.book_entity.book import Book
 from app_books.books.infrastructure.persistence.mappers.book.book_mapper import book_to_domain, book_to_orm, apply_book_to_orm
 

@@ -5,7 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from app_books.books.application.exceptions import FavoriteNotFoundError
 from app_books.books.infrastructure.persistence.models.book.book_model import BooksOrm
-from shared.dtos.book_list import BookListSortBy, BookListFilters, SortOrder
+from app_books.books.shared.dto.book_list import BookListSortBy, BookListFilters, SortOrder
 from app_books.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
 from app_books.books.infrastructure.persistence.mappers.favorite.favorite_mapper import favorite_to_domain, favorite_to_orm
 from app_books.books.domain.entities.book_entity.book import Book

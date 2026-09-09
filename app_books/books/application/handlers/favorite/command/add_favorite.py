@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from app_books.books.application.ports.book.i_book_repository import IBookRepository
 from app_books.books.application.ports.favorite.i_favorite_repository import IFavoriteRepository
@@ -5,6 +6,7 @@ from shared.application.port.i_unit_of_work import IUnitOfWork
 from shared.application.port.i_handler import IHandler
 from app_books.books.domain.entities.favorite_entity.favorite_book import FavoriteBook
 
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class AddFavoriteBookCommand:
@@ -35,6 +37,12 @@ class AddFavoriteBookHandler(IHandler[AddFavoriteBookCommand, FavoriteBook]):
             add_favorite = await self._repository.add_favorite_book(favorite)
 
             await self._uow.commit()
+
+            logger.info(
+                "Favorite: book_id=%s, user_id=%s",
+                add_favorite.book_id,
+                add_favorite.user_id,
+            )
 
         return add_favorite
         

@@ -26,7 +26,7 @@ def register_common_exception_handlers(
 
 async def unexpected_error_handler(
     request: Request,
-    exc: Exception,
+    _exc: Exception,
 ) -> JSONResponse:
     logger.exception(
         "Unhandled exception: method=%s path=%s",
@@ -42,11 +42,17 @@ async def unexpected_error_handler(
     )
 
 async def forbidden_handler(
-    _request: Request,
-    _exc: ForbiddenError,
+    request: Request,
+    exc: ForbiddenError,
 ) -> JSONResponse:
+    logger.warning(
+        "Authorization denied: method=%s path=%s role=%s",
+        request.method,
+        request.url.path,
+        exc.role,
+    )
 
-    response = error(message="Insufficient permissions", data={"role": _exc.role})
+    response = error(message="Insufficient permissions", data={"role": exc.role})
     
     return JSONResponse(
         status_code=403,
@@ -54,9 +60,14 @@ async def forbidden_handler(
     )
 
 async def un_authorized_error(
-    _request: Request,
+    request: Request,
     _exc: UnAuthorizedError,
 ) -> JSONResponse:
+    logger.info(
+        "Authentication rejected: method=%s path=%s",
+        request.method,
+        request.url.path,
+    )
 
     response = error(message="User is not authorized")
 

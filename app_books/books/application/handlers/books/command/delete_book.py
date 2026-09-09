@@ -41,8 +41,9 @@ class DeleteBookHandler(IHandler[DeleteBookCommand, Book]):
             await self._uow.commit()
 
         logger.info(
-            "Book deleted: book_id=%s",
-            request.book_id,
+            "Book soft deleted: book_id=%s actor_id=%s",
+            saved_book.require_id(),
+            request.author.user_id,
         )
 
         return saved_book

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from shared.application.port.i_handler import IHandler
@@ -5,7 +6,7 @@ from app_auth.identity.application.ports.i_refresh_token_repository import IRefr
 from app_auth.identity.infrastructure.security.refresh_token_service import RefreshTokenService
 from shared.application.port.i_unit_of_work import IUnitOfWork
 
-
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class LogoutUserCommand:
@@ -30,13 +31,17 @@ class LogoutUserHandler(IHandler[LogoutUserCommand, None]):
         )
 
         async with self._uow:
-            await self._refresh_repository.revoke_active(
+            revoked = await self._refresh_repository.revoke_active(
                 token_hash=token_hash,
                 revoked_at=datetime.now(timezone.utc)
             )
 
             await self._uow.commit()
 
+            logger.info(
+                "User logout completed: outcome=%s",
+                "revoked" if revoked else "noop",
+            )
         
         
 

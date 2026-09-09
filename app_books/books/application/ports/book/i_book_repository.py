@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from app_books.books.domain.entities.book_entity.book import Book
 
 class IBookRepository(ABC):

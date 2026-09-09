@@ -7,7 +7,7 @@ from app_books.books.api.dto.book.book_dto import SBooksAdd, SBooksUpdate, SPutB
 from shared.responses.api_response import success
 from shared.responses.api_response_schema import ApiResponseSchema
 from app_books.books.api.dto.book.book_dto import BooksDto
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from app_books.books.application.handlers.books.command.create_book import CreateBookCommand, CreateBookHandler
 from app_books.books.application.handlers.books.command.delete_book import DeleteBookCommand, DeleteBookHandler
 from app_books.books.application.handlers.books.command.put_update_book import PutUpdateBookCommand, PutUpdateBookHandler

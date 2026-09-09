@@ -1,3 +1,4 @@
+import logging
 from anyio import to_thread
 from dataclasses import dataclass
 from shared.application.port.i_handler import IHandler
@@ -11,6 +12,8 @@ from app_auth.identity.domain.value_objects.username import Username
 from app_auth.identity.infrastructure.security.password import DUMMY_PASSWORD_HASH, verify_password
 from app_auth.identity.application.exceptions import InvalidCredentialsError
 from app_auth.identity.domain.entities.refresh_session import RefreshSession
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class LoginUserCommand:
@@ -82,6 +85,11 @@ class LoginUserHandler(IHandler[LoginUserCommand, tuple[TokenResponse, str]]):
             )
 
             await self._uow.commit()
+
+            logger.info(
+                "User login successfully: user_id=%s",
+                user_id,
+            )
 
             return (
                 TokenResponse(access_token=access_token),

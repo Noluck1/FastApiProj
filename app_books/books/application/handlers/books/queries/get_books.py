@@ -1,10 +1,12 @@
+import logging
 from dataclasses import dataclass
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from shared.application.port.i_handler import IHandler
 from shared.dtos.pagination_dto import PaginatedDto
 from app_books.books.application.ports.book.i_book_repository import IBookRepository
 from app_books.books.domain.entities.book_entity.book import Book
 
+logger  = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class GetBooksQuery:
@@ -30,6 +32,15 @@ class GetBooksHandler(IHandler[GetBooksQuery, PaginatedDto[Book]]):
         )
 
         total_pages = (total + request.page_size - 1) // request.page_size
+
+        logger.debug(
+            "Books retrieved: page=%s page_size=%s "
+            "result_count=%s total=%s",
+            request.page,
+            request.page_size,
+            len(books),
+            total,
+        )
 
         return PaginatedDto[Book](
             item=books,

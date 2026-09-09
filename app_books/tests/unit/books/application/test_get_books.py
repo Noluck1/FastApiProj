@@ -4,7 +4,7 @@ import pytest
 
 from app_books.books.application.handlers.books.queries.get_books import GetBooksHandler, GetBooksQuery
 from app_books.books.domain.entities.book_entity.book import Book
-from shared.dtos.book_list import BookListFilters
+from app_books.books.shared.dto.book_list import BookListFilters
 
 
 @pytest.mark.asyncio

@@ -61,8 +61,9 @@ class PutUpdateBookHandler(IHandler[PutUpdateBookCommand, Book]):
             await self._uow.commit()
 
             logger.info(
-                "Book updated: book_id=%s",
+                "Book updated: book_id=%s actor_id=%s update_type=full",
                 saved_book.require_id(),
+                request.author.user_id,
             )   
 
             return saved_book

@@ -1,3 +1,4 @@
+import logging
 from anyio import to_thread
 from dataclasses import dataclass 
 from shared.application.port.i_handler import IHandler
@@ -10,7 +11,7 @@ from app_auth.identity.infrastructure.security.password import hash_password
 from app_auth.identity.domain.value_objects.password_hash import PasswordHash
 from app_auth.identity.domain.enums.user_role import UserRole
 
-
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class RegisterUserCommand:
@@ -49,4 +50,9 @@ class RegisterUserHandler(IHandler[RegisterUserCommand, User]):
 
             await self._uow.commit()
 
+            logger.info(
+                "User register: user_id=%s",
+                saved_user.require_id(),
+            )
+            
             return saved_user

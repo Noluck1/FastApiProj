@@ -1,9 +1,12 @@
+import logging
 from dataclasses import dataclass
 from app_auth.identity.domain.entities.user import User
 from shared.application.port.i_handler import IHandler
 from app_auth.identity.infrastructure.security.token_service import TokenService
 from app_auth.identity.application.ports.i_user_repository import IUserRepository
 from app_auth.identity.application.exceptions import InvalidCredentialsError
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class GetCurrentUserCommand:
@@ -29,6 +32,11 @@ class GetCurrentUserHandler(IHandler[GetCurrentUserCommand, User]):
             raise InvalidCredentialsError
 
         user.ensure_active()
+
+        logger.info(
+            "User retrieved successfully: user_id=%s",
+            user_id,
+        )
 
         return user
         

@@ -1,10 +1,13 @@
+import logging
 from dataclasses import dataclass
-from shared.dtos.book_list import BookListFilters, BookListSortBy, SortOrder
+from app_books.books.shared.dto.book_list import BookListFilters, BookListSortBy, SortOrder
 from shared.application.port.i_handler import IHandler
 from app_books.books.api.dto.book.book_dto import BooksDto
 from shared.dtos.pagination_dto import PaginatedDto
 from app_books.books.application.ports.favorite.i_favorite_repository import IFavoriteRepository
 from app_books.books.domain.entities.book_entity.book import Book
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class GetFavoriteBooksQuery:
@@ -34,6 +37,11 @@ class GetFavoriteBooksHandle(IHandler[GetFavoriteBooksQuery, PaginatedDto[Book]]
         )
 
         total_pages = (total + request.page_size - 1) // request.page_size
+
+        logger.info(
+            "Book favorite: totla=%s",
+            total,
+        )
 
         return PaginatedDto[Book](
             item=books,

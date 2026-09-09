@@ -1,7 +1,10 @@
+import logging
 from dataclasses import dataclass
 
 from app_auth.identity.application.ports.i_user_repository import IUserRepository
 from shared.application.port.i_handler import IHandler
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class GetUserStatusQuery:
@@ -36,6 +39,11 @@ class GetUserStatusHandler(
 
         if user is None:
             return None
+
+        logger.debug(
+            "User retrieved successfully: user_id=%s",
+            user.require_id()
+        )
 
         return UserStatusResult(
             user_id=user.require_id(),
