@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{user_id}", response_model=InternalUserStatusResponse)
+@router.get("/{user_id}", response_model=InternalUserStatusResponse, include_in_schema=False)
 async def get_user_status(
     user_id: int,
     handler: FromDishka[GetUserStatusHandler],
