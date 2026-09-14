@@ -1,0 +1,5 @@
+2026/09/10-11:57:05.406 38bc Creating DB C:\MorozovProject\FastApiProj\frontend\.tmp-login-qa\profile-desktop-2\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/09/10-11:57:05.415 38bc Reusing MANIFEST C:\MorozovProject\FastApiProj\frontend\.tmp-login-qa\profile-desktop-2\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/10-11:57:05.576 4888 Level-0 table #5: started
+2026/09/10-11:57:05.582 4888 Level-0 table #5: 683273 bytes OK
+2026/09/10-11:57:05.584 4888 Delete type=0 #3

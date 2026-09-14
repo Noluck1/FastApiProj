@@ -1,0 +1,31 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ${K8S_APP_NAME}-strip-prefix
+  namespace: ${K8S_NAMESPACE}
+spec:
+  stripPrefix:
+    prefixes:
+      - ${K8S_BASE_PATH}
+      - ${K8S_BASE_PATH}/
+
+---
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ${K8S_APP_NAME}-ir
+  namespace: ${K8S_NAMESPACE}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`${K8S_HOST}`) && PathPrefix(`${K8S_BASE_PATH}`)
+      priority: 2
+      kind: Rule
+      services:
+        - name: ${K8S_APP_NAME}-svc
+          port: ${K8S_SERVICE_PORT}
+      middlewares:
+        - name: ${K8S_APP_NAME}-strip-prefix

@@ -1,0 +1,8 @@
+# `max_threads` is capacity, not a recommendation to run all agents at once.
+# Parallelize only advisory, independent work after upstream decisions are stable.
+[agents]
+max_threads = 5
+# `max_depth = 1` keeps orchestration centralized in the main session.
+# Agents should not rely on spawning their own subagents.
+max_depth = 1
+job_max_runtime_seconds = 1800
